@@ -1,4 +1,4 @@
-MERGED DATASET VALIDATION (v9, +لغتي٢: ١١٠ قصة عبر ٢٢ درسًا من كتاب لغتي الجزء الثاني)
+MERGED DATASET VALIDATION (v10, +درس أنواع الطاقة المتجددة: ٥ قصص)
 ========================================
 [OK] train #1: 299 Arabic words
 [OK] train #2: 298 Arabic words
@@ -179,13 +179,16 @@ MERGED DATASET VALIDATION (v9, +لغتي٢: ١١٠ قصة عبر ٢٢ درسًا
 [OK] train #177: 106 Arabic words
 [OK] train #178: 103 Arabic words
 [OK] train #179: 103 Arabic words
-[OK] train #180: 243 Arabic words
-[OK] train #181: 208 Arabic words
-[OK] train #182: 199 Arabic words
-[OK] train #183: 197 Arabic words
-[OK] train #184: 200 Arabic words
-[OK] train #185: 402 Arabic words
-[OK] train #186: 246 Arabic words
+[OK] train #180: 113 Arabic words
+[OK] train #181: 109 Arabic words
+[OK] train #182: 92 Arabic words
+[OK] train #183: 243 Arabic words
+[OK] train #184: 208 Arabic words
+[OK] train #185: 199 Arabic words
+[OK] train #186: 197 Arabic words
+[OK] train #187: 200 Arabic words
+[OK] train #188: 402 Arabic words
+[OK] train #189: 246 Arabic words
 [OK] validation #1: 279 Arabic words
 [OK] validation #2: 296 Arabic words
 [OK] validation #3: 206 Arabic words
@@ -244,6 +247,7 @@ MERGED DATASET VALIDATION (v9, +لغتي٢: ١١٠ قصة عبر ٢٢ درسًا
 [OK] validation #56: 95 Arabic words
 [OK] validation #57: 94 Arabic words
 [OK] validation #58: 97 Arabic words
+[OK] validation #59: 100 Arabic words
 [OK] test #1: 304 Arabic words
 [OK] test #2: 313 Arabic words
 [OK] test #3: 216 Arabic words
@@ -302,12 +306,13 @@ MERGED DATASET VALIDATION (v9, +لغتي٢: ١١٠ قصة عبر ٢٢ درسًا
 [OK] test #56: 95 Arabic words
 [OK] test #57: 99 Arabic words
 [OK] test #58: 110 Arabic words
-[OK] test #59: 211 Arabic words
-[OK] test #60: 204 Arabic words
-[OK] test #61: 211 Arabic words
-[OK] test #62: 196 Arabic words
-[OK] test #63: 206 Arabic words
+[OK] test #59: 112 Arabic words
+[OK] test #60: 211 Arabic words
+[OK] test #61: 204 Arabic words
+[OK] test #62: 211 Arabic words
+[OK] test #63: 196 Arabic words
+[OK] test #64: 206 Arabic words
 
 All valid: True
 Duplicates: False
-Totals: train=186, validation=58, test=63, GRAND TOTAL=307
+Totals: train=189, validation=59, test=64, GRAND TOTAL=312
