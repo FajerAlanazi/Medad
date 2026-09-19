@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Stars from "./Stars";
+import Icon, { IconName } from "./Icons";
 import { subjectPresets } from "../data/stories";
 
 interface Props {
@@ -31,7 +32,6 @@ function Fireflies() {
 
 export default function LandingScreen({ onStart }: Props) {
   const [scrollY, setScrollY] = useState(0);
-  const [activeFeature, setActiveFeature] = useState(0);
 
   useEffect(() => {
     const el = document.querySelector(".landing-scroll");
@@ -39,17 +39,6 @@ export default function LandingScreen({ onStart }: Props) {
     el?.addEventListener("scroll", onScroll);
     return () => el?.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => setActiveFeature((p) => (p + 1) % 3), 3500);
-    return () => clearInterval(t);
-  }, []);
-
-  const features = [
-    { icon: "🗺️", title: "استكشف مناطق المملكة", desc: "١٣ منطقة سعودية حقيقية تصبح مسرحاً لمغامراتك التعليمية" },
-    { icon: "🤖", title: "ذكاء اصطناعي تكيّفي", desc: "يتعلم من أدائك ويضبط الصعوبة والتلميحات في الوقت الفعلي" },
-    { icon: "🏆", title: "تعلّم حقيقي قابل للقياس", desc: "تقارير مفصلة تُظهر تحقق الفهم لكل مفهوم دراسي" },
-  ];
 
   return (
     <div className="landing-scroll h-full overflow-y-auto">
@@ -88,11 +77,11 @@ export default function LandingScreen({ onStart }: Props) {
         </div>
 
         {/* Palm trees */}
-        <div className="absolute bottom-14 right-8 text-8xl opacity-15 pointer-events-none select-none"
-          style={{ transform: `translateY(${scrollY * 0.05}px)` }}>🌴</div>
-        <div className="absolute bottom-20 right-36 text-5xl opacity-10 pointer-events-none select-none"
-          style={{ transform: `translateY(${scrollY * 0.03}px)` }}>🌴</div>
-        <div className="absolute bottom-16 left-8 text-6xl opacity-10 pointer-events-none select-none">🌴</div>
+        <div className="absolute bottom-14 right-8 opacity-15 pointer-events-none select-none"
+          style={{ transform: `translateY(${scrollY * 0.05}px)`, color: "#d4a843" }}><Icon name="palm-tree" size={110} /></div>
+        <div className="absolute bottom-20 right-36 opacity-10 pointer-events-none select-none"
+          style={{ transform: `translateY(${scrollY * 0.03}px)`, color: "#d4a843" }}><Icon name="palm-tree" size={64} /></div>
+        <div className="absolute bottom-16 left-8 opacity-10 pointer-events-none select-none" style={{ color: "#d4a843" }}><Icon name="palm-tree" size={80} /></div>
 
         {/* Navigation */}
         <nav className="relative z-10 flex items-center justify-between px-8 py-5">
@@ -102,11 +91,6 @@ export default function LandingScreen({ onStart }: Props) {
               <span className="text-sm font-bold" style={{ color: "#090f1a" }}>م</span>
             </div>
             <span className="font-display text-lg" style={{ color: "#d4a843" }}>مداد</span>
-          </div>
-          <div className="hidden md:flex items-center gap-6 text-sm" style={{ color: "#6b7f8e" }}>
-            {["كيف يعمل؟", "المواد الدراسية", "للمعلمين", "القصص"].map((item) => (
-              <a key={item} href="#" className="hover:text-amber-400 transition-colors">{item}</a>
-            ))}
           </div>
           <button onClick={() => onStart()}
             className="btn-primary px-5 py-2.5 rounded-xl text-sm font-bold hidden sm:block">
@@ -118,7 +102,9 @@ export default function LandingScreen({ onStart }: Props) {
         <main className="relative z-10 max-w-4xl mx-auto px-6 pt-16 pb-48 text-center">
           <div className="flex items-center justify-center gap-3 mb-8">
             <div className="h-px flex-1 max-w-20" style={{ background: "linear-gradient(to right, transparent, #d4a84360)" }} />
-            <span className="ornament text-lg">❋ ✦ ❋</span>
+            <span className="ornament text-lg flex items-center gap-2">
+              <Icon name="ornament" size={18} /> <Icon name="sparkle" size={14} filled /> <Icon name="ornament" size={18} />
+            </span>
             <div className="h-px flex-1 max-w-20" style={{ background: "linear-gradient(to left, transparent, #d4a84360)" }} />
           </div>
 
@@ -141,35 +127,9 @@ export default function LandingScreen({ onStart }: Props) {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-slide-up"
             style={{ animationDelay: "0.35s", opacity: 0 }}>
-            <button onClick={() => onStart()} className="btn-primary px-12 py-5 rounded-2xl text-xl font-black animate-pulse-glow">
-              ابدأ المغامرة ✦
+            <button onClick={() => onStart()} className="btn-primary px-12 py-5 rounded-2xl text-xl font-black animate-pulse-glow inline-flex items-center gap-2">
+              ابدأ المغامرة <Icon name="sparkle" size={20} filled />
             </button>
-            <button className="px-8 py-4 rounded-2xl text-base transition-all hover:bg-white/5 flex items-center gap-2"
-              style={{ color: "#8fa3b0", border: "1px solid rgba(212,168,67,0.15)" }}>
-              <span>▶</span> شاهد كيف يعمل
-            </button>
-          </div>
-
-          {/* Animated feature strip */}
-          <div className="card-glass rounded-2xl p-5 max-w-lg mx-auto animate-slide-up"
-            style={{ animationDelay: "0.5s", opacity: 0 }}>
-            {features.map((f, i) => (
-              <div key={i} className={`transition-all duration-500 ${i === activeFeature ? "block" : "hidden"}`}>
-                <div className="flex items-center gap-4 text-right">
-                  <span className="text-3xl">{f.icon}</span>
-                  <div>
-                    <div className="font-bold text-sm mb-1" style={{ color: "#d4a843" }}>{f.title}</div>
-                    <div className="text-sm" style={{ color: "#8fa3b0" }}>{f.desc}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            <div className="flex justify-center gap-2 mt-3">
-              {features.map((_, i) => (
-                <div key={i} className="h-1 rounded-full transition-all duration-300"
-                  style={{ width: i === activeFeature ? 24 : 6, background: i === activeFeature ? "#d4a843" : "rgba(212,168,67,0.2)" }} />
-              ))}
-            </div>
           </div>
         </main>
       </section>
@@ -197,23 +157,23 @@ export default function LandingScreen({ onStart }: Props) {
                   style={{ background: "radial-gradient(circle at 50% 0%, rgba(212,168,67,0.08), transparent 70%)" }} />
 
                 <div className="relative z-10">
-                  <div className="text-5xl mb-4 transition-transform duration-300 group-hover:scale-110 inline-block">
-                    {preset.icon}
+                  <div className="mb-4 transition-transform duration-300 group-hover:scale-110 inline-block" style={{ color: "#d4a843" }}>
+                    <Icon name={preset.icon} size={40} />
                   </div>
                   <div className="text-xs font-bold mb-1.5" style={{ color: "#d4a843" }}>{preset.subject}</div>
                   <div className="font-display text-lg mb-1.5" style={{ color: "#f0e6c8" }}>{preset.lesson}</div>
-                  <div className="text-xs mb-3" style={{ color: "#6b7f8e" }}>
-                    {preset.regionEmoji} {preset.region}
+                  <div className="text-xs mb-3 flex items-center gap-1" style={{ color: "#6b7f8e" }}>
+                    <Icon name={preset.regionIcon} size={12} /> {preset.region}
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs" style={{ color: "#6b7f8e" }}>
-                      <span>⏱</span><span>{preset.duration}</span>
+                      <Icon name="clock" size={12} /><span>{preset.duration}</span>
                     </div>
                     {preset.story ? (
-                      <span className="text-xs px-2.5 py-1 rounded-full font-bold"
+                      <span className="text-xs px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1"
                         style={{ background: "rgba(212,168,67,0.15)", color: "#d4a843" }}>
-                        متاح ✦
+                        متاح <Icon name="sparkle" size={10} filled />
                       </span>
                     ) : (
                       <span className="text-xs px-2.5 py-1 rounded-full"
@@ -229,9 +189,9 @@ export default function LandingScreen({ onStart }: Props) {
 
           <div className="text-center">
             <button onClick={() => onStart()}
-              className="px-10 py-4 rounded-xl font-bold transition-all hover:bg-white/5"
+              className="px-10 py-4 rounded-xl font-bold transition-all hover:bg-white/5 inline-flex items-center gap-2"
               style={{ border: "1px solid rgba(212,168,67,0.2)", color: "#8fa3b0" }}>
-              ✎ أو أدخل موضوعاً خاصاً بك
+              <Icon name="pencil" size={14} /> أو أدخل موضوعاً خاصاً بك
             </button>
           </div>
         </div>
@@ -250,12 +210,12 @@ export default function LandingScreen({ onStart }: Props) {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { step: "١", icon: "📚", title: "اختر درسك", desc: "حدد المادة والمرحلة الدراسية" },
-              { step: "٢", icon: "🤖", title: "الذكاء يبني", desc: "يصنع قصة تفاعلية في منطقة سعودية" },
-              { step: "٣", icon: "⚔️", title: "عِش المغامرة", desc: "قرارات وألغاز وتحديات حقيقية" },
-              { step: "٤", icon: "📊", title: "احصد النتائج", desc: "تقرير مفصل لما أتقنته وما تحتاجه" },
-            ].map((s, i) => (
+            {([
+              { step: "١", icon: "book-stack", title: "اختر درسك", desc: "حدد المادة والمرحلة الدراسية" },
+              { step: "٢", icon: "robot", title: "الذكاء يبني", desc: "يصنع قصة تفاعلية في منطقة سعودية" },
+              { step: "٣", icon: "sword", title: "عِش المغامرة", desc: "قرارات وألغاز وتحديات حقيقية" },
+              { step: "٤", icon: "chart", title: "احصد النتائج", desc: "تقرير مفصل لما أتقنته وما تحتاجه" },
+            ] as { step: string; icon: IconName; title: string; desc: string }[]).map((s, i) => (
               <div key={i} className="text-center relative">
                 {/* Connector line */}
                 {i < 3 && (
@@ -265,7 +225,7 @@ export default function LandingScreen({ onStart }: Props) {
                 )}
                 <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
                   style={{ background: "rgba(212,168,67,0.1)", border: "1px solid rgba(212,168,67,0.2)" }}>
-                  <span className="text-2xl">{s.icon}</span>
+                  <Icon name={s.icon} size={24} style={{ color: "#d4a843" }} />
                   <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
                     style={{ background: "#d4a843", color: "#090f1a" }}>{s.step}</span>
                 </div>
@@ -277,49 +237,12 @@ export default function LandingScreen({ onStart }: Props) {
         </div>
       </section>
 
-      {/* ── STATS + CTA ── */}
-      <section style={{ background: "#0a1120" }} className="px-6 py-20">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-3 gap-6 mb-16">
-            {[
-              { num: "+٢٠٠", label: "مغامرة تعليمية", icon: "📖" },
-              { num: "١٣", label: "منطقة سعودية", icon: "🗺️" },
-              { num: "٩٨٪", label: "نسبة رضا الطلاب", icon: "⭐" },
-            ].map((s) => (
-              <div key={s.label} className="text-center card-glass rounded-2xl p-6">
-                <div className="text-3xl mb-2">{s.icon}</div>
-                <div className="font-display text-3xl font-bold mb-1" style={{ color: "#d4a843" }}>{s.num}</div>
-                <div className="text-xs" style={{ color: "#6b7f8e" }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Final CTA */}
-          <div className="text-center card-glass rounded-3xl p-10 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-20"
-              style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(212,168,67,0.3), transparent 60%)" }} />
-            <div className="relative z-10">
-              <h2 className="font-display text-3xl md:text-4xl mb-3" style={{ color: "#f0e6c8" }}>
-                ابدأ رحلتك اليوم
-              </h2>
-              <p className="mb-8 text-base" style={{ color: "#8fa3b0" }}>
-                انضم لآلاف الطلاب الذين يتعلمون بالقصة والمغامرة
-              </p>
-              <button onClick={() => onStart()} className="btn-primary px-14 py-5 rounded-2xl text-xl font-black">
-                ابدأ مجاناً ✦
-              </button>
-              <p className="mt-4 text-xs" style={{ color: "#4a5568" }}>لا يحتاج تسجيل — ابدأ مباشرة</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer style={{ background: "#090f1a", borderTop: "1px solid rgba(212,168,67,0.08)", color: "#4a5568" }}
         className="px-8 py-6 flex items-center justify-between text-xs">
-        <span>مداد © ١٤٤٦هـ</span>
+        <span>مداد © ١٤٤٨هـ</span>
         <div className="flex items-center gap-2">
-          <span className="ornament text-amber-600">❋</span>
+          <Icon name="ornament" size={14} className="ornament text-amber-600" />
           <span>صُنع بفخر في المملكة العربية السعودية</span>
         </div>
       </footer>

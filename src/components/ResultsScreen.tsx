@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Stars from "./Stars";
+import Icon, { IconName } from "./Icons";
 import { Story } from "../data/stories";
 import { Character } from "../data/characters";
 
@@ -15,7 +16,7 @@ interface Props {
 
 interface Achievement {
   id: string;
-  icon: string;
+  icon: IconName;
   title: string;
   desc: string;
   earned: boolean;
@@ -34,7 +35,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
   const achievements: Achievement[] = [
     {
       id: "first_blood",
-      icon: "⚔️",
+      icon: "sword",
       title: "أول انتصار",
       desc: "أكملت مغامرتك الأولى",
       earned: true,
@@ -42,7 +43,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
     },
     {
       id: "perfectionist",
-      icon: "🏆",
+      icon: "trophy",
       title: "المثالي",
       desc: "أجبت على كل شيء صحيحاً",
       earned: clamped >= 90,
@@ -50,7 +51,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
     },
     {
       id: "scholar",
-      icon: "📚",
+      icon: "book-stack",
       title: "العالِم",
       desc: `أتقنت ${conceptsMastered.length} مفاهيم`,
       earned: conceptsMastered.length >= 3,
@@ -58,7 +59,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
     },
     {
       id: "noHints",
-      icon: "🧠",
+      icon: "brain",
       title: "بلا تلميح",
       desc: "أكملت المغامرة دون طلب تلميح",
       earned: clamped >= 70,
@@ -66,7 +67,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
     },
     {
       id: "saudi",
-      icon: "🌴",
+      icon: "palm-tree",
       title: "ابن الوطن",
       desc: "استكشفت منطقة سعودية جديدة",
       earned: true,
@@ -96,13 +97,13 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
       <div className="relative z-10 max-w-2xl mx-auto px-6 py-10">
         {/* Hero section */}
         <div className="text-center mb-8">
-          <div className="text-6xl mb-4 animate-float inline-block">
-            {clamped >= 85 ? "🏆" : clamped >= 60 ? "🌟" : "📖"}
+          <div className="mb-4 animate-float inline-flex justify-center" style={{ color: "#d4a843" }}>
+            <Icon name={clamped >= 85 ? "trophy" : clamped >= 60 ? "sparkle" : "book"} size={64} filled={clamped >= 60} />
           </div>
 
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: `${levelColor}20`, border: `1px solid ${levelColor}40`, color: levelColor }}>
-            <span className="text-lg">{character.emoji}</span>
+            <Icon name={character.icon} size={16} />
             {character.name} — مستوى {level}
           </div>
 
@@ -117,9 +118,9 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
           {/* Stars */}
           <div className="flex gap-2">
             {[1, 2, 3].map((s) => (
-              <span key={s} className="text-4xl transition-all duration-500"
-                style={{ filter: s <= stars ? "none" : "grayscale(1) opacity(0.15)", animationDelay: `${s * 200}ms` }}>
-                ⭐
+              <span key={s} className="transition-all duration-500 inline-flex"
+                style={{ color: "#f0d070", filter: s <= stars ? "none" : "grayscale(1) opacity(0.15)", animationDelay: `${s * 200}ms` }}>
+                <Icon name="star" size={32} filled />
               </span>
             ))}
           </div>
@@ -142,7 +143,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
 
         {/* Concepts mastery */}
         <div className="card-glass rounded-2xl p-5 mb-5">
-          <h3 className="text-sm font-bold mb-4" style={{ color: "#d4a843" }}>📊 تقرير المفاهيم</h3>
+          <h3 className="text-sm font-bold mb-4 inline-flex items-center gap-2" style={{ color: "#d4a843" }}><Icon name="chart" size={16} /> تقرير المفاهيم</h3>
           <div className="space-y-2.5">
             {allConcepts.map((c) => {
               const mastered = conceptsMastered.includes(c);
@@ -150,12 +151,12 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
               return (
                 <div key={c}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold"
+                    <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold inline-flex items-center gap-1"
                       style={{
                         background: mastered ? "rgba(22,101,52,0.4)" : "rgba(255,255,255,0.05)",
                         color: mastered ? "#4ade80" : "#4a5568",
                       }}>
-                      {mastered ? "✓ مُتقَن" : "يحتاج مراجعة"}
+                      {mastered ? <><Icon name="check" size={11} /> مُتقَن</> : "يحتاج مراجعة"}
                     </span>
                     <span className="text-sm" style={{ color: mastered ? "#d4c89e" : "#6b7f8e" }}>{c}</span>
                   </div>
@@ -172,7 +173,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
         {/* AI Feedback */}
         <div className="rounded-2xl p-5 mb-5 text-right text-sm leading-loose"
           style={{ background: "rgba(26,74,62,0.2)", border: "1px solid rgba(126,205,184,0.15)", color: "#a8c8be" }}>
-          <p className="font-bold mb-2" style={{ color: "#7ecdb8" }}>🤖 تقييم الذكاء الاصطناعي:</p>
+          <p className="font-bold mb-2 inline-flex items-center gap-2" style={{ color: "#7ecdb8" }}><Icon name="robot" size={16} /> تقييم الذكاء الاصطناعي:</p>
           {clamped >= 85 ? (
             <p>تفوّقت في فهم {story.subject.split("—")[1]?.trim() || story.subject}! يمكنك الانتقال لمواضيع أكثر تعقيداً. جرب مغامرتنا القادمة في منطقة جديدة.</p>
           ) : clamped >= 60 ? (
@@ -184,7 +185,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
 
         {/* Achievements */}
         <div className="card-glass rounded-2xl p-5 mb-8">
-          <h3 className="text-sm font-bold mb-4" style={{ color: "#d4a843" }}>🏅 الإنجازات المكتسبة</h3>
+          <h3 className="text-sm font-bold mb-4 inline-flex items-center gap-2" style={{ color: "#d4a843" }}><Icon name="medal-ribbon" size={16} /> الإنجازات المكتسبة</h3>
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
             {achievements.map((ach) => (
               <div
@@ -196,7 +197,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
                   filter: ach.earned ? "none" : "grayscale(1) opacity(0.35)",
                 }}
               >
-                <span className="text-2xl mb-1">{ach.icon}</span>
+                <span className="mb-1" style={{ color: ach.earned ? ach.color : "#4a5568" }}><Icon name={ach.icon} size={26} /></span>
                 <span className="text-xs font-bold leading-tight" style={{ color: ach.earned ? ach.color : "#4a5568" }}>
                   {ach.title}
                 </span>
@@ -210,8 +211,8 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button onClick={onRestart} className="btn-primary px-8 py-4 rounded-xl font-bold">
-            العب مرة أخرى ↺
+          <button onClick={onRestart} className="btn-primary px-8 py-4 rounded-xl font-bold inline-flex items-center gap-2 justify-center">
+            العب مرة أخرى <Icon name="undo" size={16} />
           </button>
           <button onClick={onHome}
             className="px-8 py-4 rounded-xl font-bold transition-all hover:bg-white/5"
@@ -220,8 +221,8 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
           </button>
         </div>
 
-        <p className="mt-8 text-xs text-center" style={{ color: "#4a5568" }}>
-          شارك نتيجتك مع معلمك ✦ {story.region} • {story.grade}
+        <p className="mt-8 text-xs text-center inline-flex items-center gap-1.5 justify-center w-full" style={{ color: "#4a5568" }}>
+          شارك نتيجتك مع معلمك <Icon name="sparkle" size={11} filled /> {story.region} • {story.grade}
         </p>
       </div>
     </div>

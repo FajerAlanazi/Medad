@@ -1,12 +1,13 @@
 import { Story } from "../data/stories";
+import Icon, { IconName } from "./Icons";
 
-const nodeTypeIcon: Record<string, string> = {
-  narrative: "📖",
-  choice: "⚔️",
-  question: "🎯",
-  puzzle: "🧩",
-  match: "🔗",
-  ending: "🏆",
+const nodeTypeIcon: Record<string, IconName> = {
+  narrative: "book",
+  choice: "sword",
+  question: "target",
+  puzzle: "puzzle",
+  match: "link",
+  ending: "trophy",
 };
 
 interface Props {
@@ -44,7 +45,7 @@ export default function StoryMapPanel({ story, currentNodeId, visitedNodeIds, sc
       <div className="px-5 py-3" style={{ borderBottom: "1px solid rgba(212,168,67,0.08)" }}>
         <div className="flex items-center justify-between">
           <span className="text-xs" style={{ color: "#6b7f8e" }}>النقاط</span>
-          <span className="font-bold" style={{ color: "#d4a843" }}>{score} ✦</span>
+          <span className="font-bold inline-flex items-center gap-1" style={{ color: "#d4a843" }}>{score} <Icon name="sparkle" size={12} filled /></span>
         </div>
         <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
           <div className="h-full rounded-full"
@@ -78,7 +79,7 @@ export default function StoryMapPanel({ story, currentNodeId, visitedNodeIds, sc
                     color: isCurrent ? "#090f1a" : visited ? "#4ade80" : "#6b7f8e",
                     border: visited && !isCurrent ? "1px solid rgba(74,222,128,0.2)" : "none",
                   }}>
-                  {visited && !isCurrent ? "✓" : idx + 1}
+                  {visited && !isCurrent ? <Icon name="check" size={12} /> : idx + 1}
                 </div>
                 {idx < nodeOrder.length - 1 && (
                   <div className="w-px flex-1 mt-1" style={{ minHeight: 12, background: visited ? "rgba(74,222,128,0.2)" : "rgba(255,255,255,0.06)" }} />
@@ -87,7 +88,9 @@ export default function StoryMapPanel({ story, currentNodeId, visitedNodeIds, sc
 
               <div className="flex-1 min-w-0 pt-0.5">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-sm">{nodeTypeIcon[node.type] ?? "•"}</span>
+                  <span className="inline-flex" style={{ color: isCurrent ? "#d4a843" : "#8fa3b0" }}>
+                    {nodeTypeIcon[node.type] ? <Icon name={nodeTypeIcon[node.type]} size={13} /> : null}
+                  </span>
                   <span className="text-xs font-semibold truncate" style={{ color: isCurrent ? "#d4a843" : "#a8b9c8" }}>
                     {node.title ?? node.scene ?? nodeId}
                   </span>
@@ -99,7 +102,7 @@ export default function StoryMapPanel({ story, currentNodeId, visitedNodeIds, sc
                   </span>
                 )}
                 {isLocked && (
-                  <span className="text-xs" style={{ color: "#4a5568" }}>🔒 مقفل</span>
+                  <span className="text-xs inline-flex items-center gap-1" style={{ color: "#4a5568" }}><Icon name="lock" size={10} /> مقفل</span>
                 )}
               </div>
             </div>

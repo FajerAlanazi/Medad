@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Stars from "./Stars";
+import Icon from "./Icons";
 import { PlayerProfile, getLevel, allBadges, CompletedAdventure } from "../data/progress";
 import { subjectPresets } from "../data/stories";
 
@@ -7,6 +8,7 @@ interface Props {
   profile: PlayerProfile;
   onStartAdventure: (preset?: (typeof subjectPresets)[0]) => void;
   onEditName: (name: string) => void;
+  onReset: () => void;
 }
 
 function XPBar({ xp, nextXP, color }: { xp: number; nextXP: number; color: string }) {
@@ -35,10 +37,10 @@ function AdventureCard({ adv }: { adv: CompletedAdventure }) {
       style={{ background: "rgba(17,24,39,0.6)", border: "1px solid rgba(212,168,67,0.1)" }}
     >
       <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0"
-        style={{ background: "rgba(212,168,67,0.1)" }}
+        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+        style={{ background: "rgba(212,168,67,0.1)", color: "#d4a843" }}
       >
-        {adv.regionEmoji}
+        <Icon name={adv.regionIcon} size={22} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-sm truncate" style={{ color: "#f0e6c8" }}>{adv.storyTitle}</p>
@@ -48,7 +50,9 @@ function AdventureCard({ adv }: { adv: CompletedAdventure }) {
         <div className="flex items-center gap-2 mt-1.5">
           <div className="flex gap-0.5">
             {[1,2,3].map(s => (
-              <span key={s} className="text-xs" style={{ filter: s <= stars ? "none" : "grayscale(1) opacity(0.2)" }}>⭐</span>
+              <span key={s} className="inline-flex" style={{ color: "#f0d070", filter: s <= stars ? "none" : "grayscale(1) opacity(0.2)" }}>
+                <Icon name="star" size={11} filled />
+              </span>
             ))}
           </div>
           <span className="text-xs" style={{ color: "#8fa3b0" }}>{adv.pct}٪</span>
@@ -56,18 +60,28 @@ function AdventureCard({ adv }: { adv: CompletedAdventure }) {
           <span className="text-xs" style={{ color: "#d4a843" }}>+{adv.score} XP</span>
         </div>
       </div>
-      <div className="text-lg shrink-0">{adv.characterEmoji}</div>
+      <div className="shrink-0" style={{ color: "#d4a843" }}><Icon name={adv.characterIcon} size={18} /></div>
     </div>
   );
 }
 
-export default function DashboardScreen({ profile, onStartAdventure, onEditName }: Props) {
+export default function DashboardScreen({ profile, onStartAdventure, onEditName, onReset }: Props) {
   const levelInfo = getLevel(profile.totalXP);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(profile.name);
   const [activeTab, setActiveTab] = useState<"home" | "badges" | "history">("home");
+  const [confirmingReset, setConfirmingReset] = useState(false);
 
   const earnedBadgeIds = new Set(profile.badgesEarned);
+
+  const handleResetClick = () => {
+    if (confirmingReset) {
+      onReset();
+      setConfirmingReset(false);
+    } else {
+      setConfirmingReset(true);
+    }
+  };
 
   return (
     <div className="relative h-full desert-gradient overflow-hidden flex flex-col">
@@ -95,12 +109,12 @@ export default function DashboardScreen({ profile, onStartAdventure, onEditName 
                   <input value={nameInput} onChange={e => setNameInput(e.target.value)} autoFocus
                     className="bg-transparent border-b text-sm outline-none px-1 text-center"
                     style={{ borderColor: "#d4a843", color: "#f0e6c8", maxWidth: 120 }} />
-                  <button type="submit" className="text-xs" style={{ color: "#d4a843" }}>✓</button>
+                  <button type="submit" className="text-xs inline-flex" style={{ color: "#d4a843" }}><Icon name="check" size={14} /></button>
                 </form>
               ) : (
-                <button onClick={() => setEditingName(true)} className="text-sm font-bold hover:text-amber-400 transition-colors"
+                <button onClick={() => setEditingName(true)} className="text-sm font-bold hover:text-amber-400 transition-colors inline-flex items-center gap-1.5"
                   style={{ color: "#f0e6c8" }}>
-                  {profile.name} ✎
+                  {profile.name} <Icon name="pencil" size={12} />
                 </button>
               )}
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs"
@@ -116,15 +130,31 @@ export default function DashboardScreen({ profile, onStartAdventure, onEditName 
             <div className="font-display text-xl font-bold" style={{ color: "#d4a843" }}>{profile.totalXP}</div>
             <div className="text-xs" style={{ color: "#6b7f8e" }}>XP</div>
           </div>
+
+          {/* Reset progress */}
+          <button
+            onClick={handleResetClick}
+            onBlur={() => setConfirmingReset(false)}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+            style={{
+              background: confirmingReset ? "rgba(248,113,113,0.15)" : "rgba(255,255,255,0.04)",
+              border: `1px solid ${confirmingReset ? "rgba(248,113,113,0.4)" : "rgba(255,255,255,0.08)"}`,
+              color: confirmingReset ? "#f87171" : "#6b7f8e",
+            }}
+            title="مسح كل التقدم والبدء من جديد"
+          >
+            <Icon name={confirmingReset ? "warning" : "undo"} size={14} />
+            <span className="hidden sm:inline">{confirmingReset ? "تأكيد المسح؟" : "إعادة تعيين"}</span>
+          </button>
         </div>
       </header>
 
       {/* ── TABS ── */}
       <div className="relative z-20 shrink-0 flex gap-1 px-6 pt-4 max-w-4xl mx-auto w-full">
         {[
-          { id: "home", label: "الرئيسية", icon: "🏠" },
-          { id: "badges", label: "الإنجازات", icon: "🏅" },
-          { id: "history", label: "المغامرات", icon: "📖" },
+          { id: "home", label: "الرئيسية", icon: "home" as const },
+          { id: "badges", label: "الإنجازات", icon: "medal-ribbon" as const },
+          { id: "history", label: "المغامرات", icon: "book" as const },
         ].map((tab) => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
@@ -133,7 +163,7 @@ export default function DashboardScreen({ profile, onStartAdventure, onEditName 
               color: activeTab === tab.id ? "#d4a843" : "#6b7f8e",
               border: activeTab === tab.id ? "1px solid rgba(212,168,67,0.25)" : "1px solid transparent",
             }}>
-            <span>{tab.icon}</span>
+            <Icon name={tab.icon} size={16} />
             <span className="hidden sm:inline">{tab.label}</span>
           </button>
         ))}
@@ -153,8 +183,8 @@ export default function DashboardScreen({ profile, onStartAdventure, onEditName 
                     <p className="text-xs mb-1" style={{ color: "#6b7f8e" }}>مستواك الحالي</p>
                     <p className="font-display text-2xl font-bold" style={{ color: levelInfo.color }}>{levelInfo.title}</p>
                   </div>
-                  <div className="text-5xl animate-float">
-                    {levelInfo.level === 1 ? "🌱" : levelInfo.level === 2 ? "🌿" : levelInfo.level === 3 ? "⚔️" : levelInfo.level === 4 ? "🔮" : "👑"}
+                  <div className="animate-float" style={{ color: levelInfo.color }}>
+                    <Icon name={levelInfo.icon} size={48} />
                   </div>
                 </div>
                 <XPBar xp={profile.totalXP} nextXP={levelInfo.nextXP} color={levelInfo.color} />
@@ -166,12 +196,14 @@ export default function DashboardScreen({ profile, onStartAdventure, onEditName 
               {/* Quick stats */}
               <div className="grid grid-cols-3 gap-4">
                 {[
-                  { icon: "🗺️", value: profile.adventures.length, label: "مغامرة" },
-                  { icon: "🏅", value: profile.badgesEarned.length, label: "إنجاز" },
-                  { icon: "⭐", value: profile.adventures.reduce((a, c) => a + c.stars, 0), label: "نجمة" },
+                  { icon: "map" as const, value: profile.adventures.length, label: "مغامرة" },
+                  { icon: "medal-ribbon" as const, value: profile.badgesEarned.length, label: "إنجاز" },
+                  { icon: "star" as const, value: profile.adventures.reduce((a, c) => a + c.stars, 0), label: "نجمة" },
                 ].map((stat) => (
                   <div key={stat.label} className="card-glass rounded-2xl p-4 text-center">
-                    <div className="text-2xl mb-1">{stat.icon}</div>
+                    <div className="mb-1 flex justify-center" style={{ color: "#d4a843" }}>
+                      <Icon name={stat.icon} size={24} filled={stat.icon === "star"} />
+                    </div>
                     <div className="font-display text-2xl font-bold" style={{ color: "#d4a843" }}>{stat.value}</div>
                     <div className="text-xs" style={{ color: "#6b7f8e" }}>{stat.label}</div>
                   </div>
@@ -192,14 +224,14 @@ export default function DashboardScreen({ profile, onStartAdventure, onEditName 
                     <button key={preset.lesson} onClick={() => onStartAdventure(preset)}
                       className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
                       style={{ background: "rgba(212,168,67,0.12)", border: "1px solid rgba(212,168,67,0.2)", color: "#d4a843" }}>
-                      <span>{preset.icon}</span>
+                      <Icon name={preset.icon} size={15} />
                       <span>{preset.lesson}</span>
                     </button>
                   ))}
                   <button onClick={() => onStartAdventure()}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
                     style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#8fa3b0" }}>
-                    <span>✎</span>
+                    <Icon name="pencil" size={14} />
                     <span>موضوع خاص</span>
                   </button>
                 </div>
@@ -232,13 +264,13 @@ export default function DashboardScreen({ profile, onStartAdventure, onEditName 
                         border: `1px solid ${earned ? `${badge.color}30` : "rgba(255,255,255,0.05)"}`,
                         filter: earned ? "none" : "grayscale(1) opacity(0.35)",
                       }}>
-                      <div className="text-4xl mb-3">{badge.icon}</div>
+                      <div className="mb-3 flex justify-center" style={{ color: earned ? badge.color : "#4a5568" }}><Icon name={badge.icon} size={34} /></div>
                       <div className="font-bold text-sm mb-1" style={{ color: earned ? badge.color : "#4a5568" }}>
                         {badge.title}
                       </div>
                       <div className="text-xs leading-relaxed" style={{ color: "#6b7f8e" }}>{badge.desc}</div>
                       {earned && (
-                        <div className="mt-2 text-xs" style={{ color: badge.color }}>✓ مكتسب</div>
+                        <div className="mt-2 text-xs inline-flex items-center gap-1" style={{ color: badge.color }}><Icon name="check" size={10} /> مكتسب</div>
                       )}
                     </div>
                   );
@@ -252,10 +284,10 @@ export default function DashboardScreen({ profile, onStartAdventure, onEditName 
             <div>
               {profile.adventures.length === 0 ? (
                 <div className="text-center py-16">
-                  <div className="text-5xl mb-4 opacity-30">📖</div>
+                  <div className="mb-4 opacity-30 flex justify-center" style={{ color: "#8fa3b0" }}><Icon name="book" size={44} /></div>
                   <p style={{ color: "#6b7f8e" }}>لم تُكمل أي مغامرة بعد</p>
-                  <button onClick={() => onStartAdventure()} className="btn-primary mt-6 px-8 py-3 rounded-xl font-bold">
-                    ابدأ الآن ✦
+                  <button onClick={() => onStartAdventure()} className="btn-primary mt-6 px-8 py-3 rounded-xl font-bold inline-flex items-center gap-2">
+                    ابدأ الآن <Icon name="sparkle" size={16} filled />
                   </button>
                 </div>
               ) : (

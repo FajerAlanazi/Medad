@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Icon from "./Icons";
 
 interface Props {
   items: string[];
@@ -103,8 +104,8 @@ export default function OrderPuzzle({ items, correctOrder, onComplete }: Props) 
 
               <span className="text-sm flex-1" style={{ color: "#d4c89e" }}>{item}</span>
 
-              {state === "correct" && <span className="text-green-400 text-sm">✓</span>}
-              {state === "wrong" && <span className="text-red-400 text-sm">✗</span>}
+              {state === "correct" && <Icon name="check" size={13} className="text-green-400" />}
+              {state === "wrong" && <Icon name="cross" size={13} className="text-red-400" />}
             </div>
           );
         })}
@@ -117,15 +118,15 @@ export default function OrderPuzzle({ items, correctOrder, onComplete }: Props) 
       )}
 
       {!checked && (
-        <button onClick={handleCheck} className="btn-primary px-8 py-3 rounded-xl font-bold text-sm">
-          تحقق من الترتيب ✓
+        <button onClick={handleCheck} className="btn-primary px-8 py-3 rounded-xl font-bold text-sm inline-flex items-center gap-2">
+          تحقق من الترتيب <Icon name="check" size={14} />
         </button>
       )}
 
       {checked && (
-        <div className="rounded-xl px-5 py-4 text-sm animate-slide-up"
+        <div className="rounded-xl px-5 py-4 text-sm animate-slide-up inline-flex items-center gap-2"
           style={{ background: "rgba(22,101,52,0.4)", border: "1px solid rgba(74,222,128,0.3)", color: "#86efac" }}>
-          ✓ ترتيب صحيح! أحسنت.
+          <Icon name="check" size={15} /> ترتيب صحيح! أحسنت.
         </div>
       )}
     </div>

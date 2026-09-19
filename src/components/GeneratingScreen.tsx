@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import Stars from "./Stars";
+import Icon, { IconName } from "./Icons";
 
-const buildSteps = [
-  { icon: "📚", label: "تحليل محتوى الدرس" },
-  { icon: "🗺️", label: "اختيار المنطقة السعودية" },
-  { icon: "✍️", label: "بناء حبكة القصة" },
-  { icon: "🧩", label: "تصميم التحديات والأسئلة" },
-  { icon: "🎭", label: "صياغة الشخصيات والحوارات" },
-  { icon: "⚙️", label: "ضبط مستوى الصعوبة" },
-  { icon: "✦", label: "المراجعة النهائية" },
+const buildSteps: { icon: IconName; label: string }[] = [
+  { icon: "book-stack", label: "تحليل محتوى الدرس" },
+  { icon: "map", label: "اختيار المنطقة السعودية" },
+  { icon: "pencil", label: "بناء حبكة القصة" },
+  { icon: "puzzle", label: "تصميم التحديات والأسئلة" },
+  { icon: "masks", label: "صياغة الشخصيات والحوارات" },
+  { icon: "gear", label: "ضبط مستوى الصعوبة" },
+  { icon: "sparkle", label: "المراجعة النهائية" },
 ];
 
 // Simulated AI-generated story excerpt lines (stream in one char at a time)
@@ -84,7 +85,7 @@ export default function GeneratingScreen({ lesson, onComplete }: Props) {
                 boxShadow: "0 0 60px rgba(212,168,67,0.4), 0 0 120px rgba(212,168,67,0.1)",
               }}
             >
-              {done ? "✓" : buildSteps[currentStep].icon}
+              {done ? <Icon name="check" size={32} /> : <Icon name={buildSteps[currentStep].icon} size={32} filled={buildSteps[currentStep].icon === "sparkle"} />}
             </div>
             {/* Orbit ring */}
             <svg className="absolute inset-0 w-full h-full -rotate-90 animate-spin"
@@ -130,7 +131,9 @@ export default function GeneratingScreen({ lesson, onComplete }: Props) {
                 border: i === currentStep ? "1px solid rgba(212,168,67,0.3)" : "1px solid transparent",
                 opacity: i > currentStep ? 0.25 : 1,
               }}>
-              <span className="text-base shrink-0">{i < currentStep ? "✓" : step.icon}</span>
+              <span className="shrink-0 inline-flex" style={{ color: i < currentStep ? "#4ade80" : i === currentStep ? "#d4a843" : "#8fa3b0" }}>
+                {i < currentStep ? <Icon name="check" size={16} /> : <Icon name={step.icon} size={16} filled={step.icon === "sparkle"} />}
+              </span>
               <span className="text-sm"
                 style={{ color: i < currentStep ? "#4ade80" : i === currentStep ? "#d4a843" : "#8fa3b0" }}>
                 {step.label}

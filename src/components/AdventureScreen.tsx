@@ -3,6 +3,8 @@ import Stars from "./Stars";
 import MatchPuzzle from "./MatchPuzzle";
 import SceneTransition from "./SceneTransition";
 import StoryMapPanel from "./StoryMapPanel";
+import CharacterCompanion from "./CharacterCompanion";
+import Icon from "./Icons";
 import { Story, StoryNode } from "../data/stories";
 import { Character } from "../data/characters";
 
@@ -151,7 +153,7 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
       <SceneTransition
         scene={story.nodes[nextNodeId ?? nodeId]?.scene ?? ""}
         title={story.nodes[nextNodeId ?? nodeId]?.title ?? ""}
-        regionEmoji={story.regionEmoji}
+        regionIcon={story.regionIcon}
         visible={transitionVisible}
         onDone={handleTransitionDone}
       />
@@ -184,7 +186,7 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
             style={{ border: "1px solid rgba(212,168,67,0.15)", color: "#8fa3b0" }}
             title="خريطة القصة"
           >
-            🗺️
+            <Icon name="map" size={16} />
           </button>
 
           {/* Progress */}
@@ -198,16 +200,12 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
             <span className="text-xs shrink-0 tabular-nums" style={{ color: "#6b7f8e" }}>{Math.round(progress)}٪</span>
           </div>
 
-          {/* Character + Score */}
+          {/* Character (in listening/focus mode) + Score */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-              style={{ background: `${character.color}12`, border: `1px solid ${character.color}28` }}>
-              <span className="text-base leading-none">{character.emoji}</span>
-              <span className="text-xs font-bold hidden sm:inline" style={{ color: character.color }}>{character.name}</span>
-            </div>
+            <CharacterCompanion character={character} variant="listen" size={30} label={character.name} compact />
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
               style={{ background: "rgba(212,168,67,0.1)", border: "1px solid rgba(212,168,67,0.18)" }}>
-              <span className="text-amber-400 text-xs leading-none">✦</span>
+              <Icon name="sparkle" size={12} filled className="text-amber-400" />
               <span className="text-xs font-bold tabular-nums" style={{ color: "#d4a843" }}>{score}</span>
             </div>
           </div>
@@ -233,9 +231,9 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
                 </span>
               )}
               {node.scene && (
-                <span className="text-xs font-semibold px-3 py-1.5 rounded-full"
+                <span className="text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1"
                   style={{ background: "rgba(9,15,26,0.85)", color: "#d4a843", border: "1px solid rgba(212,168,67,0.25)", backdropFilter: "blur(4px)" }}>
-                  📍 {node.scene}
+                  <Icon name="pin" size={11} /> {node.scene}
                 </span>
               )}
             </div>
@@ -295,7 +293,10 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
                   color: feedback.correct ? "#86efac" : "#fca5a5",
                 }}
               >
-                <span className="font-bold ml-2">{feedback.correct ? "✓ أحسنت!" : "✗ ليس تماماً —"}</span>
+                <span className="font-bold ml-2 inline-flex items-center gap-1">
+                  <Icon name={feedback.correct ? "check" : "cross"} size={13} />
+                  {feedback.correct ? "أحسنت!" : "ليس تماماً —"}
+                </span>
                 {feedback.text}
               </div>
             )}
@@ -304,8 +305,9 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
             {(node.type === "choice" || node.type === "question" || node.type === "puzzle") &&
               node.choices && typewriterDone && (
                 <div className="space-y-3 mb-5 animate-slide-up">
-                  <p className="text-xs font-semibold mb-3" style={{ color: "#6b7f8e" }}>
-                    {node.type === "question" ? "🎯 اختر الإجابة الصحيحة:" : node.type === "puzzle" ? "🧩 ما هو حلك؟" : "⚔️ ماذا تفعل؟"}
+                  <p className="text-xs font-semibold mb-3 flex items-center gap-1.5" style={{ color: "#6b7f8e" }}>
+                    <Icon name={node.type === "question" ? "target" : node.type === "puzzle" ? "puzzle" : "sword"} size={13} />
+                    {node.type === "question" ? "اختر الإجابة الصحيحة:" : node.type === "puzzle" ? "ما هو حلك؟" : "ماذا تفعل؟"}
                   </p>
                   {node.choices.map((choice, idx) => {
                     const isThis = selectedChoice === idx;
@@ -358,7 +360,7 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
                   {showHint ? (
                     <div className="rounded-xl px-5 py-3 text-sm animate-fade-in leading-relaxed"
                       style={{ background: "rgba(26,74,62,0.3)", border: "1px solid rgba(126,205,184,0.2)", color: "#7ecdb8" }}>
-                      💡 <strong>تلميح:</strong> {node.hint}
+                      <span className="inline-flex items-center gap-1.5"><Icon name="bulb" size={14} /> <strong>تلميح:</strong> {node.hint}</span>
                       {hintUsed && character.id !== "healer" && (
                         <span className="text-xs opacity-50 mr-2">(-٥ نقاط)</span>
                       )}
@@ -366,7 +368,7 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
                   ) : (
                     <button onClick={handleHint} className="text-xs flex items-center gap-2 transition-colors hover:text-teal-400"
                       style={{ color: "#6b7f8e" }}>
-                      💡 أحتاج تلميحاً
+                      <Icon name="bulb" size={14} /> أحتاج تلميحاً
                       <span className="opacity-60">{character.id === "healer" ? "(مجاناً)" : "(-٥ نقاط)"}</span>
                     </button>
                   )}
@@ -377,24 +379,24 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
             {typewriterDone && (
               <>
                 {node.type === "narrative" && (
-                  <button onClick={handleNext} className="btn-primary px-8 py-4 rounded-xl font-bold">
-                    تابع الرحلة ←
+                  <button onClick={handleNext} className="btn-primary px-8 py-4 rounded-xl font-bold inline-flex items-center gap-2">
+                    تابع الرحلة <Icon name="arrow-left" size={16} />
                   </button>
                 )}
                 {node.type === "match" && matchDone && (
-                  <button onClick={handleNext} className="btn-primary px-8 py-4 rounded-xl font-bold mt-2 animate-slide-up">
-                    تابع الرحلة ←
+                  <button onClick={handleNext} className="btn-primary px-8 py-4 rounded-xl font-bold mt-2 animate-slide-up inline-flex items-center gap-2">
+                    تابع الرحلة <Icon name="arrow-left" size={16} />
                   </button>
                 )}
                 {node.type === "ending" && (
                   <div className="space-y-5">
                     <div className="flex items-center gap-3 justify-center py-3">
-                      <span className="ornament text-3xl">❋</span>
-                      <span className="ornament text-3xl text-amber-400">✦</span>
-                      <span className="ornament text-3xl">❋</span>
+                      <Icon name="ornament" size={26} className="ornament" />
+                      <Icon name="sparkle" size={26} filled className="text-amber-400" />
+                      <Icon name="ornament" size={26} className="ornament" />
                     </div>
-                    <button onClick={handleNext} className="btn-primary w-full py-5 rounded-2xl text-xl font-black animate-pulse-glow">
-                      اعرض نتيجتي ✦
+                    <button onClick={handleNext} className="btn-primary w-full py-5 rounded-2xl text-xl font-black animate-pulse-glow inline-flex items-center justify-center gap-2">
+                      اعرض نتيجتي <Icon name="sparkle" size={20} filled />
                     </button>
                   </div>
                 )}
@@ -411,13 +413,13 @@ export default function AdventureScreen({ story, character, onEnd }: Props) {
           <span className="text-xs shrink-0" style={{ color: "#3a4a58" }}>المفاهيم:</span>
           {story.concepts.map((c) => (
             <span key={c}
-              className="text-xs px-2.5 py-1 rounded-full shrink-0 transition-all duration-500"
+              className="text-xs px-2.5 py-1 rounded-full shrink-0 transition-all duration-500 inline-flex items-center gap-1"
               style={{
                 background: conceptsMastered.includes(c) ? "rgba(22,101,52,0.45)" : "rgba(255,255,255,0.04)",
                 color: conceptsMastered.includes(c) ? "#4ade80" : "#3a4a58",
                 border: `1px solid ${conceptsMastered.includes(c) ? "rgba(74,222,128,0.25)" : "rgba(255,255,255,0.04)"}`,
               }}>
-              {conceptsMastered.includes(c) ? "✓ " : ""}{c}
+              {conceptsMastered.includes(c) && <Icon name="check" size={10} />}{c}
             </span>
           ))}
         </div>

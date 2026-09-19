@@ -1,3 +1,5 @@
+import { IconName } from "../components/Icons";
+
 export type ChoiceType = "choice" | "question" | "puzzle" | "match";
 
 export interface Choice {
@@ -35,7 +37,7 @@ export interface Story {
   subject: string;
   grade: string;
   region: string;
-  regionEmoji: string;
+  regionIcon: IconName;
   difficulty: "سهل" | "متوسط" | "صعب";
   duration: string;
   description: string;
@@ -53,7 +55,7 @@ export const waterCycleStory: Story = {
   subject: "علوم الأرض — دورة الماء",
   grade: "الصف الخامس الابتدائي",
   region: "واحة الأحساء",
-  regionEmoji: "🌴",
+  regionIcon: "palm-tree",
   difficulty: "متوسط",
   duration: "٢٠ دقيقة",
   description: "مغامرة في أعمق واحة في العالم للكشف عن سر اختفاء المياه وإنقاذ النخيل",
@@ -278,7 +280,7 @@ export const foodChainsStory: Story = {
   subject: "علم الأحياء — السلاسل الغذائية",
   grade: "الصف السادس الابتدائي",
   region: "الربع الخالي",
-  regionEmoji: "🦅",
+  regionIcon: "eagle",
   difficulty: "متوسط",
   duration: "٢٥ دقيقة",
   description: "اكتشف أسرار الحياة في أكبر صحراء رملية في العالم وافهم كيف تتصل الكائنات بعضها ببعض",
@@ -334,7 +336,7 @@ export const foodChainsStory: Story = {
       type: "narrative",
       scene: "مشاهدة الحيوانات",
       title: "سلسلة الحياة",
-      text: "مع المغرب، تتحرك الحياة في الصحراء. تُشاهد:\n\n🌿 **عشب الصحراء** تأكله **الجرابيع الصغيرة** التي تصطادها **الثعابين**، وهي بدورها فريسة **النسر الذهبي** المحلّق فوقك.\n\nيقول سالم: «هذا ما نسميه **السلسلة الغذائية** — كل كائن يأكل ما دونه ويُؤكل بما فوقه. وحين يموت الجميع، تعود المواد للتربة لتُغذي العشب من جديد.»",
+      text: "مع المغرب، تتحرك الحياة في الصحراء. تُشاهد:\n\n**عشب الصحراء** تأكله **الجرابيع الصغيرة** التي تصطادها **الثعابين**، وهي بدورها فريسة **النسر الذهبي** المحلّق فوقك.\n\nيقول سالم: «هذا ما نسميه **السلسلة الغذائية** — كل كائن يأكل ما دونه ويُؤكل بما فوقه. وحين يموت الجميع، تعود المواد للتربة لتُغذي العشب من جديد.»",
       image: "https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?w=900&h=500&fit=crop&auto=format",
       concept: "السلسلة الغذائية",
       xp: 20,
@@ -412,53 +414,64 @@ export const foodChainsStory: Story = {
 
 export const stories: Story[] = [waterCycleStory, foodChainsStory];
 
-export const subjectPresets = [
+export const subjectPresets: {
+  subject: string;
+  lesson: string;
+  grade: string;
+  icon: IconName;
+  color: string;
+  story: string | null;
+  region: string;
+  regionIcon: IconName;
+  difficulty: "سهل" | "متوسط" | "صعب";
+  duration: string;
+}[] = [
   {
     subject: "علوم الأرض",
     lesson: "دورة الماء",
     grade: "الصف الخامس",
-    icon: "💧",
+    icon: "droplet",
     color: "from-blue-900 to-teal-900",
     story: "water-cycle-ahsa",
     region: "واحة الأحساء",
-    regionEmoji: "🌴",
-    difficulty: "متوسط" as const,
+    regionIcon: "palm-tree",
+    difficulty: "متوسط",
     duration: "٢٠ دقيقة",
   },
   {
     subject: "علم الأحياء",
     lesson: "السلاسل الغذائية",
     grade: "الصف السادس",
-    icon: "🦅",
+    icon: "eagle",
     color: "from-amber-900 to-orange-900",
     story: "food-chains-rub-al-khali",
     region: "الربع الخالي",
-    regionEmoji: "🏜️",
-    difficulty: "متوسط" as const,
+    regionIcon: "dune",
+    difficulty: "متوسط",
     duration: "٢٥ دقيقة",
   },
   {
     subject: "الفيزياء",
     lesson: "الضوء والانعكاس",
     grade: "الصف السابع",
-    icon: "🔭",
+    icon: "telescope",
     color: "from-purple-900 to-indigo-900",
     story: null,
     region: "محافظة العُلا",
-    regionEmoji: "🏛️",
-    difficulty: "صعب" as const,
+    regionIcon: "columns",
+    difficulty: "صعب",
     duration: "٣٠ دقيقة",
   },
   {
     subject: "الرياضيات",
     lesson: "الكسور والنسب",
     grade: "الصف الرابع",
-    icon: "🕌",
+    icon: "mosque",
     color: "from-emerald-900 to-green-900",
     story: null,
     region: "سوق الدرعية",
-    regionEmoji: "🏺",
-    difficulty: "سهل" as const,
+    regionIcon: "jar",
+    difficulty: "سهل",
     duration: "١٥ دقيقة",
   },
 ];

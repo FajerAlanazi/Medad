@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Stars from "./Stars";
+import Icon from "./Icons";
 import { subjectPresets } from "../data/stories";
 
 interface Props {
@@ -39,13 +40,13 @@ export default function SetupScreen({ initialPreset, onGenerate, onBack }: Props
           className="flex items-center gap-2 text-sm mb-8 transition-colors hover:text-amber-400"
           style={{ color: "#8fa3b0" }}
         >
-          <span>→</span>
+          <Icon name="arrow-right" size={14} />
           العودة للرئيسية
         </button>
 
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="text-5xl mb-4 animate-float inline-block">✦</div>
+          <div className="mb-4 animate-float inline-flex" style={{ color: "#d4a843" }}><Icon name="sparkle" size={40} filled /></div>
           <h1 className="font-display text-4xl mb-3" style={{ color: "#f0e6c8" }}>
             جهّز مغامرتك
           </h1>
@@ -68,14 +69,14 @@ export default function SetupScreen({ initialPreset, onGenerate, onBack }: Props
                     setSubject(p.subject);
                     setCustomMode(false);
                   }}
-                  className="px-4 py-2 rounded-full text-sm transition-all"
+                  className="px-4 py-2 rounded-full text-sm transition-all inline-flex items-center gap-1.5"
                   style={{
                     background: lesson === p.lesson ? "rgba(212,168,67,0.25)" : "rgba(255,255,255,0.05)",
                     border: `1px solid ${lesson === p.lesson ? "#d4a843" : "rgba(212,168,67,0.15)"}`,
                     color: lesson === p.lesson ? "#d4a843" : "#8fa3b0",
                   }}
                 >
-                  {p.icon} {p.lesson}
+                  <Icon name={p.icon} size={13} /> {p.lesson}
                 </button>
               ))}
               <button
@@ -87,7 +88,7 @@ export default function SetupScreen({ initialPreset, onGenerate, onBack }: Props
                   color: customMode && !lesson ? "#d4a843" : "#8fa3b0",
                 }}
               >
-                ✎ موضوع خاص
+                <span className="inline-flex items-center gap-1.5"><Icon name="pencil" size={13} /> موضوع خاص</span>
               </button>
             </div>
           </div>
@@ -179,7 +180,11 @@ export default function SetupScreen({ initialPreset, onGenerate, onBack }: Props
               boxShadow: canSubmit ? "0 8px 30px rgba(212,168,67,0.25)" : "none",
             }}
           >
-            {canSubmit ? "ابنِ مغامرتي ✦" : "أدخل موضوع الدرس أولاً"}
+            {canSubmit ? (
+              <span className="inline-flex items-center gap-2">ابنِ مغامرتي <Icon name="sparkle" size={16} filled /></span>
+            ) : (
+              "أدخل موضوع الدرس أولاً"
+            )}
           </button>
         </div>
       </div>

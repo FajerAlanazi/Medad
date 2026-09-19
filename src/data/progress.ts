@@ -1,15 +1,17 @@
+import { IconName } from "../components/Icons";
+
 export interface CompletedAdventure {
   storyId: string;
   storyTitle: string;
   region: string;
-  regionEmoji: string;
+  regionIcon: IconName;
   score: number;
   maxScore: number;
   pct: number;
   stars: number;
   conceptsMastered: string[];
   characterId: string;
-  characterEmoji: string;
+  characterIcon: IconName;
   date: string;
 }
 
@@ -45,6 +47,14 @@ export function saveProfile(profile: PlayerProfile) {
   } catch {}
 }
 
+/** Wipes all saved progress (XP, adventures, badges) and returns a fresh profile. */
+export function resetProfile(): PlayerProfile {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {}
+  return { ...defaultProfile, joinDate: new Date().toLocaleDateString("ar-SA") };
+}
+
 export function addAdventureToProfile(
   profile: PlayerProfile,
   adventure: CompletedAdventure
@@ -67,13 +77,13 @@ export function addAdventureToProfile(
   return updated;
 }
 
-export function getLevel(xp: number): { level: number; title: string; nextXP: number; color: string } {
-  const thresholds = [
-    { xp: 0,    level: 1, title: "مستكشف مبتدئ",   color: "#8fa3b0" },
-    { xp: 100,  level: 2, title: "رحّالة الواحة",    color: "#7ecdb8" },
-    { xp: 250,  level: 3, title: "فارس المعرفة",    color: "#60a5fa" },
-    { xp: 500,  level: 4, title: "حكيم الصحراء",    color: "#c084fc" },
-    { xp: 900,  level: 5, title: "أسطورة المملكة",  color: "#d4a843" },
+export function getLevel(xp: number): { level: number; title: string; nextXP: number; color: string; icon: IconName } {
+  const thresholds: { xp: number; level: number; title: string; color: string; icon: IconName }[] = [
+    { xp: 0,    level: 1, title: "مستكشف مبتدئ",   color: "#8fa3b0", icon: "sprout" },
+    { xp: 100,  level: 2, title: "رحّالة الواحة",    color: "#7ecdb8", icon: "leaf" },
+    { xp: 250,  level: 3, title: "فارس المعرفة",    color: "#60a5fa", icon: "sword" },
+    { xp: 500,  level: 4, title: "حكيم الصحراء",    color: "#c084fc", icon: "crystal-ball" },
+    { xp: 900,  level: 5, title: "أسطورة المملكة",  color: "#d4a843", icon: "crown" },
   ];
   for (let i = thresholds.length - 1; i >= 0; i--) {
     if (xp >= thresholds[i].xp) {
@@ -83,19 +93,20 @@ export function getLevel(xp: number): { level: number; title: string; nextXP: nu
         title: thresholds[i].title,
         nextXP: next ? next.xp : thresholds[i].xp,
         color: thresholds[i].color,
+        icon: thresholds[i].icon,
       };
     }
   }
-  return { level: 1, title: "مستكشف مبتدئ", nextXP: 100, color: "#8fa3b0" };
+  return { level: 1, title: "مستكشف مبتدئ", nextXP: 100, color: "#8fa3b0", icon: "sprout" };
 }
 
-export const allBadges = [
-  { id: "first_adventure", icon: "⚔️", title: "أول مغامرة", desc: "أكملت مغامرتك الأولى", color: "#d4a843" },
-  { id: "three_star",      icon: "🌟", title: "ثلاث نجوم",  desc: "حصلت على ٣ نجوم",         color: "#f0d070" },
-  { id: "perfectionist",  icon: "🏆", title: "المثالي",    desc: "فوق ٩٠٪ في مغامرة",      color: "#f0c050" },
-  { id: "explorer",       icon: "🗺️", title: "المستكشف",  desc: "أكملت ٣ مغامرات",         color: "#7ecdb8" },
-  { id: "veteran",        icon: "🎖️", title: "المحارب",   desc: "أكملت ٥ مغامرات",         color: "#c084fc" },
-  { id: "xp_500",         icon: "💫", title: "٥٠٠ نقطة",  desc: "تجاوزت ٥٠٠ نقطة XP",     color: "#60a5fa" },
-  { id: "scholar",        icon: "📚", title: "العالِم",    desc: "أتقنت ١٠ مفاهيم",         color: "#86efac" },
-  { id: "saudi_heart",    icon: "🌴", title: "ابن الوطن", desc: "زرت ٣ مناطق سعودية",      color: "#f97316" },
+export const allBadges: { id: string; icon: IconName; title: string; desc: string; color: string }[] = [
+  { id: "first_adventure", icon: "sword",        title: "أول مغامرة", desc: "أكملت مغامرتك الأولى", color: "#d4a843" },
+  { id: "three_star",      icon: "star",         title: "ثلاث نجوم",  desc: "حصلت على ٣ نجوم",         color: "#f0d070" },
+  { id: "perfectionist",   icon: "trophy",       title: "المثالي",    desc: "فوق ٩٠٪ في مغامرة",      color: "#f0c050" },
+  { id: "explorer",        icon: "map",          title: "المستكشف",  desc: "أكملت ٣ مغامرات",         color: "#7ecdb8" },
+  { id: "veteran",         icon: "medal-ribbon", title: "المحارب",   desc: "أكملت ٥ مغامرات",         color: "#c084fc" },
+  { id: "xp_500",          icon: "sparkle-swirl",title: "٥٠٠ نقطة",  desc: "تجاوزت ٥٠٠ نقطة XP",     color: "#60a5fa" },
+  { id: "scholar",         icon: "book-stack",   title: "العالِم",    desc: "أتقنت ١٠ مفاهيم",         color: "#86efac" },
+  { id: "saudi_heart",     icon: "palm-tree",    title: "ابن الوطن", desc: "زرت ٣ مناطق سعودية",      color: "#f97316" },
 ];

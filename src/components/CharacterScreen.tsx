@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Stars from "./Stars";
+import Icon from "./Icons";
 import { characters, Character } from "../data/characters";
 
 interface Props {
@@ -27,19 +28,19 @@ export default function CharacterScreen({ onSelect, onBack }: Props) {
           className="absolute right-6 top-6 text-sm transition-colors hover:text-amber-400 flex items-center gap-2"
           style={{ color: "#8fa3b0" }}
         >
-          <span>→</span> رجوع
+          <Icon name="arrow-right" size={14} /> رجوع
         </button>
 
         <div className="flex items-center justify-center gap-4 mb-2">
           <div className="h-px w-20" style={{ background: "linear-gradient(to right, transparent, #d4a843)" }} />
-          <span className="ornament text-3xl">❋</span>
+          <Icon name="ornament" size={26} className="ornament" />
           <div className="h-px w-20" style={{ background: "linear-gradient(to left, transparent, #d4a843)" }} />
         </div>
         <h1 className="font-display text-4xl md:text-5xl mb-2" style={{ color: "#f0e6c8" }}>
-          اختر بطلك
+          اختر رفيقك في الرحلة
         </h1>
         <p className="text-sm" style={{ color: "#8fa3b0" }}>
-          كل بطل يحمل مهارة خاصة تساعدك في المغامرة
+          كل رفيق يحمل صفة تساعدك في المغامرة
         </p>
       </div>
 
@@ -74,20 +75,36 @@ export default function CharacterScreen({ onSelect, onBack }: Props) {
                   className="absolute top-3 left-3 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
                   style={{ background: char.color, color: "#090f1a" }}
                 >
-                  ✓
+                  <Icon name="check" size={13} />
                 </div>
               )}
 
               {/* Avatar */}
               <div
-                className="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4 transition-transform duration-300"
-                style={{
-                  background: `radial-gradient(circle at 40% 40%, ${char.color}40, ${char.color}10)`,
-                  border: `2px solid ${char.color}40`,
-                  transform: isSelected || isHovered ? "scale(1.1)" : "scale(1)",
-                }}
+                className="relative w-full flex items-end justify-center mb-3"
+                style={{ height: 108 }}
               >
-                {char.emoji}
+                <div
+                  className="absolute rounded-full transition-transform duration-300"
+                  style={{
+                    width: 84,
+                    height: 84,
+                    bottom: 4,
+                    background: `radial-gradient(circle at 40% 40%, ${char.color}35, transparent 70%)`,
+                    transform: isSelected || isHovered ? "scale(1.15)" : "scale(1)",
+                  }}
+                />
+                <img
+                  src={char.image}
+                  alt={char.name}
+                  className="relative transition-transform duration-300"
+                  style={{
+                    height: 120,
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.45))",
+                    transform: isSelected || isHovered ? "translateY(-4px) scale(1.06)" : "none",
+                  }}
+                />
               </div>
 
               <div className="font-display text-xl mb-1" style={{ color: "#f0e6c8" }}>
@@ -99,8 +116,8 @@ export default function CharacterScreen({ onSelect, onBack }: Props) {
               >
                 {char.title}
               </div>
-              <div className="text-xs mb-2" style={{ color: "#6b7f8e" }}>
-                📍 {char.region}
+              <div className="text-xs mb-2 flex items-center justify-center gap-1" style={{ color: "#6b7f8e" }}>
+                <Icon name="pin" size={11} /> {char.region}
               </div>
               <div className="text-xs leading-relaxed" style={{ color: "#8fa3b0" }}>
                 {char.trait}
@@ -115,7 +132,7 @@ export default function CharacterScreen({ onSelect, onBack }: Props) {
                   color: char.color,
                 }}
               >
-                ✦ {char.bonus}
+                <span className="inline-flex items-center gap-1"><Icon name="sparkle" size={11} filled /> {char.bonus}</span>
               </div>
             </button>
           );
@@ -144,7 +161,11 @@ export default function CharacterScreen({ onSelect, onBack }: Props) {
               boxShadow: selected ? "0 8px 30px rgba(212,168,67,0.3)" : "none",
             }}
           >
-            {selected ? "انطلق في المغامرة ✦" : "اختر بطلك أولاً"}
+            {selected ? (
+              <span className="inline-flex items-center gap-2">انطلق في المغامرة <Icon name="sparkle" size={16} filled /></span>
+            ) : (
+              "اختر رفيقك أولاً"
+            )}
           </button>
         </div>
       </div>

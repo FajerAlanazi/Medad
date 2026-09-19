@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Icon from "./Icons";
 import { MatchPair } from "../data/stories";
 
 interface Props {
@@ -78,7 +79,7 @@ export default function MatchPuzzle({ pairs, onComplete }: Props) {
       {/* Errors indicator */}
       {errors > 0 && (
         <div className="flex items-center gap-2 mb-4 text-sm" style={{ color: "#f87171" }}>
-          <span>✗ أخطاء: {errors}</span>
+          <Icon name="cross" size={13} /><span>أخطاء: {errors}</span>
         </div>
       )}
 
@@ -96,7 +97,7 @@ export default function MatchPuzzle({ pairs, onComplete }: Props) {
               <button
                 key={pair.term}
                 onClick={() => handleTermClick(pair.term)}
-                className="px-4 py-3 rounded-xl text-sm font-semibold text-center transition-all duration-200"
+                className="px-4 py-3 rounded-xl text-sm font-semibold text-center transition-all duration-200 inline-flex items-center justify-center gap-1.5"
                 style={{
                   background: isMatched
                     ? "rgba(22,101,52,0.5)"
@@ -117,7 +118,7 @@ export default function MatchPuzzle({ pairs, onComplete }: Props) {
                   transform: isSelected ? "scale(1.02)" : "scale(1)",
                 }}
               >
-                {isMatched ? "✓ " : ""}{pair.term}
+                {isMatched && <Icon name="check" size={12} />}{pair.term}
               </button>
             );
           })}
@@ -168,7 +169,7 @@ export default function MatchPuzzle({ pairs, onComplete }: Props) {
           className="mt-5 rounded-xl px-5 py-4 text-center animate-slide-up"
           style={{ background: "rgba(22,101,52,0.4)", border: "1px solid rgba(74,222,128,0.3)", color: "#86efac" }}
         >
-          <span className="text-lg font-bold">✓ أحسنت! ربطت جميع المفاهيم بشكل صحيح</span>
+          <span className="text-lg font-bold inline-flex items-center gap-2"><Icon name="check" size={18} /> أحسنت! ربطت جميع المفاهيم بشكل صحيح</span>
         </div>
       )}
     </div>

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Stars from "./Stars";
+import CharacterCompanion from "./CharacterCompanion";
+import Icon from "./Icons";
 import { stories, Story } from "../data/stories";
 import { Character } from "../data/characters";
 
@@ -11,18 +13,18 @@ interface Props {
 }
 
 const saudiRegions = [
-  { name: "الرياض", x: 52, y: 42, emoji: "🏙️" },
-  { name: "جدة", x: 25, y: 50, emoji: "⚓" },
-  { name: "مكة المكرمة", x: 24, y: 52, emoji: "🕋" },
-  { name: "المدينة المنورة", x: 28, y: 38, emoji: "🌙" },
-  { name: "الدمام", x: 70, y: 40, emoji: "🛢️" },
-  { name: "واحة الأحساء", x: 72, y: 52, emoji: "🌴", story: "water-cycle-ahsa" },
-  { name: "الربع الخالي", x: 55, y: 68, emoji: "🏜️", story: "food-chains-rub-al-khali" },
-  { name: "العُلا", x: 28, y: 28, emoji: "🏛️" },
-  { name: "أبها", x: 34, y: 65, emoji: "🌿" },
-  { name: "تبوك", x: 20, y: 22, emoji: "🌊" },
-  { name: "الطائف", x: 30, y: 56, emoji: "🌹" },
-  { name: "حائل", x: 45, y: 28, emoji: "🐪" },
+  { name: "الرياض", x: 52, y: 42 },
+  { name: "جدة", x: 25, y: 50 },
+  { name: "مكة المكرمة", x: 24, y: 52 },
+  { name: "المدينة المنورة", x: 28, y: 38 },
+  { name: "الدمام", x: 70, y: 40 },
+  { name: "واحة الأحساء", x: 72, y: 52, story: "water-cycle-ahsa" },
+  { name: "الربع الخالي", x: 55, y: 68, story: "food-chains-rub-al-khali" },
+  { name: "العُلا", x: 28, y: 28 },
+  { name: "أبها", x: 34, y: 65 },
+  { name: "تبوك", x: 20, y: 22 },
+  { name: "الطائف", x: 30, y: 56 },
+  { name: "حائل", x: 45, y: 28 },
 ];
 
 export default function MapScreen({ character, targetStory, onBegin, onBack }: Props) {
@@ -46,12 +48,12 @@ export default function MapScreen({ character, targetStory, onBegin, onBack }: P
           className="text-sm flex items-center gap-2 transition-colors hover:text-amber-400"
           style={{ color: "#8fa3b0" }}
         >
-          <span>→</span> رجوع
+          <Icon name="arrow-right" size={14} /> رجوع
         </button>
         {/* Character chip */}
         <div className="flex items-center gap-3 px-4 py-2 rounded-full"
           style={{ background: `${character.color}15`, border: `1px solid ${character.color}40` }}>
-          <span className="text-xl">{character.emoji}</span>
+          <img src={character.image} alt={character.name} className="w-6 h-6 object-contain" />
           <span className="text-sm font-semibold" style={{ color: character.color }}>
             {character.name} — {character.title}
           </span>
@@ -59,10 +61,15 @@ export default function MapScreen({ character, targetStory, onBegin, onBack }: P
       </header>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-8">
+        {/* Companion greeting — the character welcomes the child to this world */}
+        <div className="flex justify-center mb-6">
+          <CharacterCompanion character={character} variant="greet" size={180} />
+        </div>
+
         <div className="text-center mb-8">
           <p className="text-sm tracking-widest mb-2" style={{ color: "#6b7f8e" }}>وجهتك</p>
-          <h1 className="font-display text-3xl md:text-4xl mb-1" style={{ color: "#f0e6c8" }}>
-            {targetStory.regionEmoji} {targetStory.region}
+          <h1 className="font-display text-3xl md:text-4xl mb-1 flex items-center justify-center gap-2" style={{ color: "#f0e6c8" }}>
+            <Icon name={targetStory.regionIcon} size={26} /> {targetStory.region}
           </h1>
           <p className="text-base" style={{ color: "#8fa3b0" }}>{targetStory.title}</p>
         </div>
@@ -170,10 +177,10 @@ export default function MapScreen({ character, targetStory, onBegin, onBack }: P
         <div className="card-glass rounded-3xl p-6 mb-8">
           <div className="flex items-start gap-5">
             <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0"
-              style={{ background: "rgba(212,168,67,0.1)", border: "1px solid rgba(212,168,67,0.2)" }}
+              className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
+              style={{ background: "rgba(212,168,67,0.1)", border: "1px solid rgba(212,168,67,0.2)", color: "#d4a843" }}
             >
-              {targetStory.regionEmoji}
+              <Icon name={targetStory.regionIcon} size={28} />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
@@ -181,9 +188,9 @@ export default function MapScreen({ character, targetStory, onBegin, onBack }: P
                   style={{ background: "rgba(212,168,67,0.15)", color: "#d4a843" }}>
                   {targetStory.subject}
                 </span>
-                <span className="text-xs px-3 py-1 rounded-full"
+                <span className="text-xs px-3 py-1 rounded-full flex items-center gap-1"
                   style={{ background: "rgba(255,255,255,0.05)", color: "#8fa3b0" }}>
-                  ⏱ {targetStory.duration}
+                  <Icon name="clock" size={11} /> {targetStory.duration}
                 </span>
                 <span className="text-xs px-3 py-1 rounded-full"
                   style={{ background: "rgba(255,255,255,0.05)", color: "#8fa3b0" }}>
@@ -211,7 +218,7 @@ export default function MapScreen({ character, targetStory, onBegin, onBack }: P
         {/* Character special ability reminder */}
         <div className="rounded-2xl p-4 mb-8 flex items-center gap-4"
           style={{ background: `${character.color}10`, border: `1px solid ${character.color}30` }}>
-          <span className="text-2xl">{character.emoji}</span>
+          <img src={character.image} alt={character.name} className="w-10 h-10 object-contain shrink-0" />
           <div>
             <p className="text-xs font-semibold mb-1" style={{ color: character.color }}>
               ميزة {character.name} في هذه المغامرة:
@@ -227,7 +234,11 @@ export default function MapScreen({ character, targetStory, onBegin, onBack }: P
             className="btn-primary px-16 py-5 rounded-2xl text-xl font-bold animate-pulse-glow"
             style={{ opacity: animating ? 0.7 : 1 }}
           >
-            {animating ? "جارٍ الانطلاق..." : `انطلق إلى ${targetStory.region} ✦`}
+            {animating ? (
+              "جارٍ الانطلاق..."
+            ) : (
+              <span className="inline-flex items-center gap-2">{`انطلق إلى ${targetStory.region}`} <Icon name="sparkle" size={18} filled /></span>
+            )}
           </button>
         </div>
       </div>

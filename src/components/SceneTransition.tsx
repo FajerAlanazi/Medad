@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
+import Icon, { IconName } from "./Icons";
 
 interface Props {
   scene: string;
   title: string;
-  regionEmoji?: string;
+  regionIcon?: IconName;
   visible: boolean;
   onDone: () => void;
 }
 
-export default function SceneTransition({ scene, title, regionEmoji, visible, onDone }: Props) {
+export default function SceneTransition({ scene, title, regionIcon, visible, onDone }: Props) {
   const [phase, setPhase] = useState<"in" | "hold" | "out" | "hidden">("hidden");
 
   useEffect(() => {
@@ -38,10 +39,10 @@ export default function SceneTransition({ scene, title, regionEmoji, visible, on
           <circle cx="60" cy="60" r="54" fill="none" stroke="#d4a843" strokeWidth="1"
             strokeDasharray="339.3" strokeDashoffset={phase === "hold" ? "0" : "339.3"}
             style={{ transition: "stroke-dashoffset 0.6s ease", transform: "rotate(-90deg)", transformOrigin: "center" }} />
-          <text x="60" y="72" textAnchor="middle" fontSize="40" fontFamily="Cairo">
-            {regionEmoji ?? "✦"}
-          </text>
         </svg>
+        <div className="absolute inset-0 flex items-center justify-center" style={{ color: "#d4a843" }}>
+          <Icon name={regionIcon ?? "sparkle"} size={40} filled={!regionIcon} />
+        </div>
       </div>
 
       {/* Scene label */}

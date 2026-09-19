@@ -14,6 +14,7 @@ import {
   loadProfile,
   saveProfile,
   addAdventureToProfile,
+  resetProfile,
 } from "./data/progress";
 
 type Screen = "landing" | "dashboard" | "setup" | "character" | "map" | "generating" | "adventure" | "results";
@@ -31,7 +32,7 @@ export default function App() {
   const [character, setCharacter] = useState<Character | null>(null);
   const [gameState, setGameState] = useState<GameState>({ score: 0, maxScore: 400, conceptsMastered: [] });
   const [profile, setProfile] = useState<PlayerProfile>(loadProfile);
-  const [isReturningUser] = useState(() => loadProfile().adventures.length > 0);
+  const isReturningUser = profile.adventures.length > 0;
 
   const activeStory =
     selectedPreset?.story === "food-chains-rub-al-khali"
@@ -47,6 +48,15 @@ export default function App() {
     const updated = { ...profile, name };
     setProfile(updated);
     saveProfile(updated);
+  };
+
+  const handleResetProfile = () => {
+    const fresh = resetProfile();
+    setProfile(fresh);
+    setCharacter(null);
+    setSelectedPreset(undefined);
+    setGameState({ score: 0, maxScore: 400, conceptsMastered: [] });
+    setScreen("landing");
   };
 
   const handleGenerate = (lesson: string, grade: string, subject: string) => {
@@ -68,14 +78,14 @@ export default function App() {
       storyId: activeStory.id,
       storyTitle: activeStory.title,
       region: activeStory.region,
-      regionEmoji: activeStory.regionEmoji,
+      regionIcon: activeStory.regionIcon,
       score,
       maxScore,
       pct,
       stars,
       conceptsMastered,
       characterId: character?.id ?? "explorer",
-      characterEmoji: character?.emoji ?? "🧭",
+      characterIcon: character?.icon ?? "compass",
       date: new Date().toLocaleDateString("ar-SA"),
     });
     setProfile(updated);
@@ -101,6 +111,7 @@ export default function App() {
           profile={profile}
           onStartAdventure={(preset) => goToSetup(preset)}
           onEditName={handleEditName}
+          onReset={handleResetProfile}
         />
       )}
       {screen === "setup" && (
