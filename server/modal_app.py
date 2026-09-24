@@ -13,7 +13,9 @@ import os
 
 import modal
 
-APP_NAME = "medad"
+# "medad-dev" = نسخة تجريبية برابط مستقل (ما تأثر على الموقع المنشور).
+# لما تنجح التجربة رجّعيه "medad" وشغّلي modal deploy.
+APP_NAME = "medad-dev"
 KAGGLE_MODEL = "lama377/midad-allam-7b/transformers/default/1"
 MODELS_DIR = "/models"
 
@@ -109,6 +111,128 @@ def build_user_prompt(lesson: str, grade: str) -> str:
         "المهمة:\n"
         f"حوّل هذا الدرس إلى قصة تعليمية ممتعة ومناسبة لطفل سعودي في {grade}."
     )
+
+
+# ─── أسئلة الفهم (اختيار من متعدد بين أجزاء القصة) ───────────────────────────
+ENABLE_QUESTIONS = True   # False = ترجع القصة بدون أسئلة زي قبل
+MAX_QUESTIONS = 2         # كل سؤال توليد إضافي (~١٠–١٥ ثانية)
+
+QUESTION_SYSTEM_PROMPT = (
+    "أنت معلم تكتب أسئلة فهم قصيرة للأطفال من عمر 7 إلى 10 سنوات.\n"
+    "اكتب سؤالاً واحداً فقط من نوع اختيار من متعدد عن الجزء المعطى من القصة.\n"
+    "قواعد مهمة:\n"
+    "1) السؤال عن المعلومة التعليمية في الجزء، وليس عن أسماء الشخصيات.\n"
+    "2) ثلاثة خيارات فقط، واحد منها صحيح والباقي خطأ بوضوح.\n"
+    "3) الإجابة الصحيحة يجب أن تكون مذكورة في الجزء نفسه.\n"
+    "4) التزم بالصيغة التالية حرفياً بدون أي كلام إضافي:\n"
+    "السؤال: ...\n"
+    "أ) ...\n"
+    "ب) ...\n"
+    "ج) ...\n"
+    "الإجابة: (حرف الخيار الصحيح)\n"
+    "الشرح: (جملة واحدة قصيرة)"
+)
+
+# بدون no_repeat_ngram_size وrepetition_penalty: الاثنين يحسبون كلمات الـ prompt،
+# فيمنعون النموذج من تكرار كلمات القصة أو كلمات الصيغة (السؤال:/الإجابة:) وهذا اللي نبيه هنا
+QUESTION_GEN_KWARGS = dict(max_new_tokens=180, do_sample=False)
+
+
+def build_question_prompt(lesson: str, grade: str, part: str) -> str:
+    return (
+        f"الدرس: {lesson}\n"
+        f"الصف: {grade}\n\n"
+        f"الجزء من القصة:\n{part}\n\n"
+        "اكتب سؤال الاختيار من متعدد بالصيغة المطلوبة."
+    )
+
+
+LETTERS = {"أ": 0, "ا": 0, "إ": 0, "a": 0, "1": 0, "١": 0,
+           "ب": 1, "b": 1, "2": 1, "٢": 1,
+           "ج": 2, "c": 2, "3": 2, "٣": 2}
+OPTION_LINE = re.compile(r"^\s*[-*•]?\s*\(?([أاإبجabc123١٢٣])\s*[)\-.:٫،]\s*(.+)$", re.IGNORECASE)
+FIELD_LINE = re.compile(r"^\s*[*#]*\s*(السؤال|الإجابة الصحيحة|الإجابة|الجواب|الشرح|التوضيح)\s*[*]*\s*[:：]\s*[*]*\s*(.*)$")
+
+
+def parse_question(raw: str) -> dict | None:
+    """يقرأ رد النموذج ويرجّع {question, options[3], answer, explanation} أو None لو الصيغة غلط."""
+    # ما نستخدم clean_text هنا لأنها تقص النص عند آخر نقطة وممكن تشيل سطر الإجابة
+    for s in STOP_STRINGS:
+        raw = raw.split(s)[0]
+    raw = re.sub(r"[ً-ْ]", "", raw.replace("\r", ""))  # نشيل التشكيل عشان نقرأ الحروف صح
+    question, answer, answer_text, explanation, options = "", None, "", "", {}
+    for line in raw.split("\n"):
+        field = FIELD_LINE.match(line)
+        if field:
+            key, val = field.group(1), field.group(2).strip()
+            if key == "السؤال":
+                question = val
+            elif key in ("الإجابة الصحيحة", "الإجابة", "الجواب"):
+                m = re.match(r"^\(?([أاإبجabc123١٢٣])(?![ء-ي])", val, re.IGNORECASE)
+                if m:
+                    answer = LETTERS[m.group(1).lower()]
+                else:
+                    answer_text = val  # كتب نص الإجابة بدل الحرف
+            else:
+                explanation = val
+            continue
+        opt = OPTION_LINE.match(line)
+        if opt and question:
+            idx = LETTERS[opt.group(1).lower()]
+            options.setdefault(idx, opt.group(2).strip())
+
+    opts = [options.get(i, "") for i in range(3)]
+    if answer is None and answer_text:
+        matches = [i for i, o in enumerate(opts) if o and (o in answer_text or answer_text in o)]
+        answer = matches[0] if len(matches) == 1 else None
+    if not re.search(r"[\u0621-\u064A]", explanation):
+        explanation = ""  # شرح فاضي أو نقاط بس
+    if not (8 <= len(question) <= 200) or answer is None:
+        return None
+    if any(not (1 <= len(o) <= 120) for o in opts) or len(set(opts)) < 3:
+        return None
+    return {"question": question, "options": opts, "answer": answer, "explanation": explanation[:200]}
+
+
+def question_positions(n_parts: int) -> list[int]:
+    """أي أجزاء يجي بعدها سؤال (مو بعد الخاتمة)، موزعة على طول القصة."""
+    candidates = list(range(n_parts - 1))
+    k = min(MAX_QUESTIONS, len(candidates))
+    if k == 0:
+        return []
+    step = len(candidates) / k
+    return sorted({candidates[int(step * j + step / 2)] for j in range(k)})
+
+
+def question_node(node_id: str, q: dict, scene: str, lesson: str, next_id: str) -> dict:
+    import random
+
+    order = [0, 1, 2]
+    random.shuffle(order)  # النموذج غالباً يحط الصح أول خيار، فنخلطها
+    correct_text = q["options"][q["answer"]]
+    explanation = q["explanation"]
+    choices = []
+    for i in order:
+        is_correct = i == q["answer"]
+        choices.append({
+            "text": q["options"][i],
+            "correct": is_correct,
+            "feedback": explanation if is_correct and explanation
+            else ("إجابة صحيحة!" if is_correct
+                  else f"الإجابة الصحيحة: {correct_text}" + (f" — {explanation}" if explanation else "")),
+            "points": 20 if is_correct else 5,
+            "next": next_id,
+        })
+    return {
+        "id": node_id,
+        "type": "question",
+        "scene": scene,
+        "title": "سؤال سريع",
+        "text": q["question"],
+        "concept": lesson,
+        "choices": choices,
+        "next": next_id,
+    }
 
 
 # ─── تنظيف النص ───────────────────────────────────────────────────────────────
@@ -216,8 +340,11 @@ def reading_time(text: str) -> str:
     return f"{minutes} {unit}".translate(AR_DIGITS)
 
 
-def build_story(lesson: str, grade: str, subject: str, text: str) -> dict:
-    parts = split_into_parts(text)
+def build_story(lesson: str, grade: str, subject: str, text: str,
+                parts: list[str] | None = None, questions: dict[int, dict] | None = None) -> dict:
+    """questions: {رقم الجزء: سؤال مقروء من parse_question} — السؤال يجي بعد ذاك الجزء."""
+    parts = parts or split_into_parts(text)
+    questions = questions or {}
     region, region_icon = detect_region(text)
     n = len(parts)
     xp_each = TOTAL_XP // n
@@ -225,6 +352,8 @@ def build_story(lesson: str, grade: str, subject: str, text: str) -> dict:
     for i, part in enumerate(parts):
         node_id = f"part_{i + 1}"
         is_last = i == n - 1
+        has_question = not is_last and i in questions
+        after = f"question_{i + 1}" if has_question else f"part_{i + 2}"
         nodes[node_id] = {
             "id": node_id,
             "type": "ending" if is_last else "narrative",
@@ -233,8 +362,10 @@ def build_story(lesson: str, grade: str, subject: str, text: str) -> dict:
             "text": part,
             "xp": xp_each + (TOTAL_XP - xp_each * n if is_last else 0),
             **({"concept": lesson} if is_last else {}),
-            **({} if is_last else {"next": f"part_{i + 2}"}),
+            **({} if is_last else {"next": after}),
         }
+        if has_question:  # السؤال بعد الجزء (بنفس الترتيب عشان خريطة القصة ورفيق البطل)
+            nodes[after] = question_node(after, questions[i], region, lesson, f"part_{i + 2}")
     first_sentence = split_sentences(parts[0])[0] if parts else ""
     return {
         "id": f"custom-{uuid.uuid4().hex[:8]}",
@@ -279,12 +410,12 @@ class Medad:
         self.model.eval()
         print("✅ Midad model loaded:", model_dir)
 
-    def generate_story_text(self, lesson: str, grade: str) -> str:
+    def _generate(self, system: str, user: str, gen_kwargs: dict) -> str:
         import torch
 
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": build_user_prompt(lesson, grade)},
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
         ]
         inputs = self.tokenizer.apply_chat_template(
             messages, tokenize=True, add_generation_prompt=True,
@@ -293,12 +424,30 @@ class Medad:
         with torch.no_grad():
             out = self.model.generate(
                 **inputs,
-                **GEN_KWARGS,
+                **gen_kwargs,
                 eos_token_id=self.tokenizer.eos_token_id,
                 pad_token_id=self.tokenizer.pad_token_id,
             )
-        text = self.tokenizer.decode(out[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True)
-        return clean_text(text)
+        return self.tokenizer.decode(out[0][inputs["input_ids"].shape[-1]:], skip_special_tokens=True)
+
+    def generate_story_text(self, lesson: str, grade: str) -> str:
+        return clean_text(self._generate(SYSTEM_PROMPT, build_user_prompt(lesson, grade), GEN_KWARGS))
+
+    def generate_questions(self, lesson: str, grade: str, parts: list[str]) -> dict[int, dict]:
+        """سؤال بعد بعض الأجزاء. أي سؤال صيغته غلط ينشال بصمت والقصة تكمل بدونه."""
+        questions: dict[int, dict] = {}
+        for i in question_positions(len(parts)):
+            try:
+                raw = self._generate(QUESTION_SYSTEM_PROMPT,
+                                     build_question_prompt(lesson, grade, parts[i]),
+                                     QUESTION_GEN_KWARGS)
+                q = parse_question(raw)
+                print(f"📝 سؤال بعد الجزء {i + 1}: {'✅' if q else '❌ صيغة غلط'}\n{raw}")
+                if q:
+                    questions[i] = q
+            except Exception as e:  # سؤال فاشل ما يوقف القصة
+                print(f"⚠️ فشل توليد السؤال بعد الجزء {i + 1}: {e}")
+        return questions
 
     @modal.asgi_app()
     def web(self):
@@ -329,6 +478,8 @@ class Medad:
             text = self.generate_story_text(lesson, grade)
             if len(text) < 200:
                 raise HTTPException(status_code=502, detail="النموذج ما قدر يكتب قصة مناسبة، جرّبي مرة ثانية.")
-            return build_story(lesson, grade, req.subject.strip(), text)
+            parts = split_into_parts(text)
+            questions = self.generate_questions(lesson, grade, parts) if ENABLE_QUESTIONS else {}
+            return build_story(lesson, grade, req.subject.strip(), text, parts, questions)
 
         return api
