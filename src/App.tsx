@@ -7,7 +7,6 @@ import MapScreen from "./components/MapScreen";
 import GeneratingScreen from "./components/GeneratingScreen";
 import AdventureScreen from "./components/AdventureScreen";
 import ResultsScreen from "./components/ResultsScreen";
-import StoryCompleteScreen from "./components/StoryCompleteScreen";
 import { waterCycleStory, foodChainsStory, subjectPresets, Story } from "./data/stories";
 import { warmUpServer } from "./api/storyApi";
 import { Character } from "./data/characters";
@@ -19,7 +18,7 @@ import {
   resetProfile,
 } from "./data/progress";
 
-type Screen = "landing" | "dashboard" | "setup" | "character" | "map" | "generating" | "adventure" | "results" | "storyComplete";
+type Screen = "landing" | "dashboard" | "setup" | "character" | "map" | "generating" | "adventure" | "results";
 
 interface GameState {
   score: number;
@@ -87,11 +86,7 @@ export default function App() {
   };
 
   const handleAdventureEnd = (score: number, maxScore: number, conceptsMastered: string[]) => {
-    // قصص "موضوع خاص" قراءة فقط: ما فيها أسئلة، فما نحسب نقاط ولا إنجازات
-    if (customStory) {
-      setScreen("storyComplete");
-      return;
-    }
+    // نفس النتيجة للقصص الجاهزة وقصص "موضوع خاص" (صار فيها أسئلة ونقاط)
     setGameState({ score, maxScore, conceptsMastered });
     const pct = Math.round((score / maxScore) * 100);
     const stars = pct >= 85 ? 3 : pct >= 60 ? 2 : 1;
@@ -174,15 +169,6 @@ export default function App() {
           character={character}
           onEnd={handleAdventureEnd}
           readingMode={customStory !== null}
-        />
-      )}
-      {screen === "storyComplete" && character && customStory && (
-        <StoryCompleteScreen
-          story={customStory}
-          character={character}
-          onReadAgain={() => setScreen("adventure")}
-          onNewTopic={() => goToSetup()}
-          onHome={() => setScreen(isReturningUser ? "dashboard" : "landing")}
         />
       )}
       {screen === "results" && character && (

@@ -220,7 +220,7 @@ def question_node(node_id: str, q: dict, scene: str, lesson: str, next_id: str) 
             "feedback": explanation if is_correct and explanation
             else ("إجابة صحيحة!" if is_correct
                   else f"الإجابة الصحيحة: {correct_text}" + (f" — {explanation}" if explanation else "")),
-            "points": 20 if is_correct else 5,
+            "points": QUESTION_POINTS if is_correct else QUESTION_WRONG_POINTS,
             "next": next_id,
         })
     return {
@@ -318,7 +318,9 @@ REGIONS = [  # (الاسم كما يظهر في النص, الأيقونة)
 ORDINALS = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن",
             "التاسع", "العاشر", "الحادي عشر", "الثاني عشر"]
 AR_DIGITS = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
-TOTAL_XP = 400  # نفس MAX_SCORE في AdventureScreen — قراءة القصة كاملة = النتيجة الكاملة
+TOTAL_XP = 400  # نفس MAX_SCORE في AdventureScreen — قراءة القصة + كل الأسئلة صح = النتيجة الكاملة
+QUESTION_POINTS = 100      # نقاط الإجابة الصحيحة (من الـ 400)
+QUESTION_WRONG_POINTS = 10
 
 
 def detect_region(text: str) -> tuple[str, str]:
@@ -347,7 +349,9 @@ def build_story(lesson: str, grade: str, subject: str, text: str,
     questions = questions or {}
     region, region_icon = detect_region(text)
     n = len(parts)
-    xp_each = TOTAL_XP // n
+    n_questions = sum(1 for i in questions if i < n - 1)
+    reading_xp = TOTAL_XP - QUESTION_POINTS * n_questions  # الباقي يتوزع على الأجزاء
+    xp_each = reading_xp // n
     nodes = {}
     for i, part in enumerate(parts):
         node_id = f"part_{i + 1}"
@@ -360,7 +364,7 @@ def build_story(lesson: str, grade: str, subject: str, text: str,
             "scene": region,  # نفس المشهد → بدون شاشة انتقال بين الأجزاء
             "title": "الخاتمة" if is_last and n > 1 else f"الجزء {ORDINALS[i] if i < len(ORDINALS) else i + 1}",
             "text": part,
-            "xp": xp_each + (TOTAL_XP - xp_each * n if is_last else 0),
+            "xp": xp_each + (reading_xp - xp_each * n if is_last else 0),
             **({"concept": lesson} if is_last else {}),
             **({} if is_last else {"next": after}),
         }

@@ -175,7 +175,7 @@ export default function ResultsScreen({ story, character, score, maxScore, conce
           style={{ background: "rgba(26,74,62,0.2)", border: "1px solid rgba(126,205,184,0.15)", color: "#a8c8be" }}>
           <p className="font-bold mb-2 inline-flex items-center gap-2" style={{ color: "#7ecdb8" }}><Icon name="robot" size={16} /> تقييم الذكاء الاصطناعي:</p>
           {clamped >= 85 ? (
-            <p>تفوّقت في فهم {story.subject.split("—")[1]?.trim() || story.subject}! يمكنك الانتقال لمواضيع أكثر تعقيداً. جرب مغامرتنا القادمة في منطقة جديدة.</p>
+            <p>تفوّقت في فهم {story.subject.split("—")[1]?.trim() || story.title}! يمكنك الانتقال لمواضيع أكثر تعقيداً. جرب مغامرتنا القادمة في منطقة جديدة.</p>
           ) : clamped >= 60 ? (
             <p>أداء جيد! ننصح بمراجعة <strong style={{ color: "#7ecdb8" }}>{allConcepts.filter((c) => !conceptsMastered.includes(c)).join(" و") || "المفاهيم الأساسية"}</strong> قبل الانتقال للمستوى التالي.</p>
           ) : (

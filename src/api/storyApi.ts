@@ -1,7 +1,8 @@
 import { Story } from "../data/stories";
 
 // رابط السيرفر من ملف .env (VITE_API_URL) — بدون / في النهاية
-const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
+// نشيل أي مسافات دخلت بالغلط وقت النسخ (تسبب ERR_NAME_NOT_RESOLVED)
+const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\s+/g, "").replace(/\/+$/, "");
 
 // نموذج 7B ممكن ياخذ دقيقة أو أكثر، فنعطيه مهلة كافية
 const TIMEOUT_MS = 180_000;
@@ -37,7 +38,7 @@ export async function generateCustomStory(lesson: string, grade: string, subject
       throw new Error("السيرفر تأخر كثير في الرد، جرّبي مرة ثانية");
     }
     if (err instanceof TypeError) {
-      throw new Error("ما قدرنا نوصل للسيرفر — تأكدي إن نوتبوك Kaggle شغال والرابط صحيح");
+      throw new Error("ما قدرنا نوصل للسيرفر — تأكد من اتصالك بالإنترنت وحاول مرة ثانية");
     }
     throw err;
   } finally {

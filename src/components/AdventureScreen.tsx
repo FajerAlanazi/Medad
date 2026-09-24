@@ -169,7 +169,6 @@ export default function AdventureScreen({ story, character, onEnd, readingMode =
             currentNodeId={nodeId}
             visitedNodeIds={visitedNodeIds}
             score={score}
-            hideScore={readingMode}
             onClose={() => setMapOpen(false)}
           />
         </>
@@ -207,13 +206,11 @@ export default function AdventureScreen({ story, character, onEnd, readingMode =
           {/* Character (in listening/focus mode) + Score */}
           <div className="flex items-center gap-2 shrink-0">
             <CharacterCompanion character={character} variant="listen" size={30} label={character.name} compact />
-            {!readingMode && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                style={{ background: "rgba(212,168,67,0.1)", border: "1px solid rgba(212,168,67,0.18)" }}>
-                <Icon name="sparkle" size={12} filled className="text-amber-400" />
-                <span className="text-xs font-bold tabular-nums" style={{ color: "#d4a843" }}>{score}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+              style={{ background: "rgba(212,168,67,0.1)", border: "1px solid rgba(212,168,67,0.18)" }}>
+              <Icon name="sparkle" size={12} filled className="text-amber-400" />
+              <span className="text-xs font-bold tabular-nums" style={{ color: "#d4a843" }}>{score}</span>
+            </div>
           </div>
         </header>
 
@@ -417,11 +414,7 @@ export default function AdventureScreen({ story, character, onEnd, readingMode =
                       <Icon name="ornament" size={26} className="ornament" />
                     </div>
                     <button onClick={handleNext} className="btn-primary w-full py-5 rounded-2xl text-xl font-black animate-pulse-glow inline-flex items-center justify-center gap-2">
-                      {readingMode ? (
-                        <>أنهيت القصة <Icon name="check" size={20} /></>
-                      ) : (
-                        <>اعرض نتيجتي <Icon name="sparkle" size={20} filled /></>
-                      )}
+                      <>اعرض نتيجتي <Icon name="sparkle" size={20} filled /></>
                     </button>
                   </div>
                 )}
