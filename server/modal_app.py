@@ -15,7 +15,7 @@ import modal
 
 # "medad-dev" = نسخة تجريبية برابط مستقل (ما تأثر على الموقع المنشور).
 # لما تنجح التجربة رجّعيه "medad" وشغّلي modal deploy.
-APP_NAME = "medad-dev"
+APP_NAME = "medad"
 KAGGLE_MODEL = "lama377/midad-allam-7b/transformers/default/1"
 MODELS_DIR = "/models"
 
