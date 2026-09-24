@@ -30,7 +30,7 @@ export const characters: Character[] = [
     color: "#c084fc",
     bgGradient: "from-purple-900/60 to-violet-900/40",
     bonus: "+١٠٪ نقاط على الأسئلة العلمية",
-    greeting: "أهلاً فيك! أنا ملك، وحماسانة أتعلم وياك اليوم",
+    greeting: "أهلاً فيك! أنا ملك، ومتحمسة أتعلم وياك اليوم",
   },
   {
     id: "healer",
